@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#fff3c4">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>はたらくクルマ えいご</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+  /* ===== 全体の見た目 ===== */
+  :root {
+    --bg: #fff3c4;        /* 背景：やさしい黄色 */
+    --card: #ffffff;
+    --main: #ff8f00;      /* オレンジ（ゴミ収集車のランプ色） */
+    --green: #43a047;
+    --blue: #1e88e5;
+    --text: #3e2723;
+    --shadow: 0 6px 0 rgba(0,0,0,0.12);
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    background: var(--bg); color: var(--text);
+    font-family: "Segoe UI", "Hiragino Maru Gothic ProN", "Yu Gothic", "Noto Sans JP", sans-serif;
+    /* 子どもが長押ししても文字選択やメニューが出ないようにする */
+    user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+    touch-action: manipulation; /* ダブルタップで拡大しない */
+    overflow: hidden;
+  }
+  body { display: flex; flex-direction: column; }
+
+  /* ===== 画面の切り替え（1つだけ表示） ===== */
+  .screen { display: none; flex: 1; flex-direction: column; min-height: 0; }
+  .screen.active { display: flex; }
+
+  /* ===== 上のバー ===== */
+  header {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 12px; background: #ffe082;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.08);
+  }
+  header h1 { font-size: 20px; margin: 0; flex: 1; text-align: center; }
+  .iconbtn {
+    width: 52px; height: 52px; border: none; border-radius: 50%;
+    background: var(--card); font-size: 26px; box-shadow: var(--shadow);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .iconbtn:active { transform: translateY(3px); box-shadow: 0 3px 0 rgba(0,0,0,0.12); }
+  .iconbtn.small { width: 40px; height: 40px; font-size: 20px; }
+
+  /* ===== ゴミ収集車のメーター（集めたゴミ袋） ===== */
+  #truckMeter {
+    display: flex; align-items: center; gap: 4px; padding: 6px 12px;
+    background: #fff8e1; font-size: 22px; justify-content: center;
+  }
+  #truckMeter .bag { opacity: 0.25; transition: transform .3s, opacity .3s; }
+  #truckMeter .bag.on { opacity: 1; transform: scale(1.2); }
+  #truckIcon { font-size: 34px; margin-left: 8px; display: inline-block; }
+  #truckIcon.drive { animation: drive 1.6s ease-in forwards; }
+  @keyframes drive {
+    0%   { transform: translateX(0); }
+    20%  { transform: translateX(-6px) rotate(-3deg); }
+    100% { transform: translateX(120vw); }
+  }
+
+  /* ===== 中身（スクロールする部分） ===== */
+  main { flex: 1; overflow-y: auto; padding: 12px; -webkit-overflow-scrolling: touch; }
+
+  /* ===== ホーム画面 ===== */
+  .hero {
+    position: relative; border-radius: 22px; overflow: hidden;
+    background: var(--card); box-shadow: var(--shadow); margin-bottom: 14px;
+  }
+  .hero img { width: 100%; display: block; aspect-ratio: 16/9; object-fit: cover; }
+  .hero .label {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.6));
+    color: #fff; padding: 30px 14px 12px; font-size: 26px; font-weight: bold;
+  }
+  .hero .hint { font-size: 14px; font-weight: normal; opacity: .9; }
+  .hero:active img { transform: scale(1.03); }
+
+  .catgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .catbtn {
+    border: none; border-radius: 22px; background: var(--card);
+    box-shadow: var(--shadow); padding: 14px 8px; font-size: 18px; font-weight: bold;
+    color: var(--text); display: flex; flex-direction: column; align-items: center; gap: 4px;
+  }
+  .catbtn .em { font-size: 44px; line-height: 1.1; }
+  .catbtn:active { transform: translateY(3px); box-shadow: 0 3px 0 rgba(0,0,0,0.12); }
+
+  /* ===== 単語カード ===== */
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .card {
+    position: relative; border-radius: 20px; overflow: hidden;
+    background: var(--card); box-shadow: var(--shadow); border: 4px solid transparent;
+  }
+  .card:active { transform: scale(0.96); }
+  .card .pic { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; }
+  .card .em {
+    width: 100%; aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center;
+    font-size: 70px; background: #fffde7;
+  }
+  .card .en { font-size: 18px; font-weight: bold; text-align: center; padding: 6px 4px 2px; }
+  .card .jp { font-size: 13px; text-align: center; color: #795548; padding-bottom: 8px; }
+  .card.good { border-color: var(--green); animation: pop .5s; }
+  .card.bad  { animation: shake .5s; opacity: .45; }
+  @keyframes pop   { 0%{transform:scale(1)} 40%{transform:scale(1.12)} 100%{transform:scale(1)} }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-10px)} 75%{transform:translateX(10px)} }
+
+  /* 色カードの丸 */
+  .colordot { width: 100%; aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center; }
+  .colordot span { width: 62%; aspect-ratio: 1; border-radius: 50%; border: 4px solid #eee; box-shadow: inset 0 -6px 0 rgba(0,0,0,0.12); }
+  /* 数カード */
+  .numbox { width: 100%; aspect-ratio: 4/3; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #e3f2fd; }
+  .numbox b { font-size: 56px; line-height: 1; color: var(--blue); }
+  .numbox small { font-size: 18px; letter-spacing: -2px; margin-top: 4px; }
+
+  /* ===== 大きく見せる画面（タップしたとき） ===== */
+  #detail {
+    position: fixed; inset: 0; background: rgba(255,243,196,0.97); z-index: 20;
+    display: none; flex-direction: column; align-items: center; justify-content: center; padding: 16px;
+  }
+  #detail.show { display: flex; }
+  #detail .big { width: min(92vw, 60vh); border-radius: 26px; overflow: hidden; background: #fff; box-shadow: var(--shadow); }
+  #detail .big img { width: 100%; display: block; }
+  #detail .big .em, #detail .big .colordot, #detail .big .numbox { aspect-ratio: 4/3; font-size: 140px; }
+  #detail .big .numbox b { font-size: 120px; } #detail .big .numbox small { font-size: 30px; }
+  #detail .word { font-size: 40px; font-weight: bold; margin: 14px 0 2px; text-align: center; }
+  #detail .yomi { font-size: 16px; color: #795548; }
+  #detail .jp   { font-size: 22px; margin-bottom: 14px; }
+  .bigbtn {
+    border: none; border-radius: 40px; padding: 14px 26px; font-size: 22px; font-weight: bold;
+    background: var(--main); color: #fff; box-shadow: var(--shadow); margin: 6px;
+  }
+  .bigbtn.gray { background: #bdbdbd; }
+  .bigbtn.green { background: var(--green); }
+  .bigbtn:active { transform: translateY(3px); box-shadow: 0 3px 0 rgba(0,0,0,0.12); }
+
+  /* 大人が言ってみる例文 */
+  .sentence {
+    font-size: 15px; background: #fff; border-radius: 14px; padding: 8px 14px; margin-bottom: 10px;
+    color: #5d4037; box-shadow: var(--shadow); max-width: 92vw; text-align: center;
+  }
+  .sentence b { display: block; font-size: 17px; color: var(--text); }
+
+  /* ===== おとなの声かけ ===== */
+  .catbtn.adult { grid-column: 1 / -1; flex-direction: row; gap: 12px; background: #e8f5e9; font-size: 17px; }
+  .catbtn.adult .em { font-size: 34px; }
+  .catbtn.adult small { font-weight: normal; font-size: 13px; color: #5d4037; }
+  .phrase-g { font-size: 15px; font-weight: bold; color: #795548; margin: 14px 4px 6px; }
+  .phrase {
+    display: flex; align-items: center; gap: 10px; background: var(--card); border-radius: 14px;
+    padding: 10px 12px; margin-bottom: 8px; box-shadow: var(--shadow);
+  }
+  .phrase:active { transform: translateY(2px); box-shadow: 0 3px 0 rgba(0,0,0,0.12); }
+  .phrase .t { flex: 1; }
+  .phrase .en { font-size: 18px; font-weight: bold; }
+  .phrase .jp { font-size: 13px; color: #795548; }
+  .phrase .sp { font-size: 24px; }
+  #adultQ { background: var(--card); border-radius: 16px; padding: 16px; font-size: 22px; font-weight: bold; text-align: center; box-shadow: var(--shadow); margin-bottom: 14px; }
+  #adultQ small { display: block; font-size: 13px; font-weight: normal; color: #795548; margin-top: 4px; }
+  .choice {
+    display: block; width: 100%; border: 4px solid transparent; border-radius: 16px; background: var(--card);
+    padding: 14px; font-size: 18px; text-align: left; margin-bottom: 10px; box-shadow: var(--shadow); color: var(--text);
+  }
+  .choice.good { border-color: var(--green); animation: pop .5s; }
+  .choice.bad { animation: shake .5s; opacity: .45; }
+
+  /* ===== クイズ ===== */
+  #quizQ {
+    text-align: center; padding: 10px; font-size: 22px; font-weight: bold;
+    background: #fff; border-radius: 16px; margin-bottom: 12px; box-shadow: var(--shadow);
+  }
+  #quizQ small { display: block; font-size: 14px; color: #795548; font-weight: normal; }
+  #quizGrid.two { grid-template-columns: 1fr; }
+  #quizGrid.two .card .pic, #quizGrid.two .card .em, #quizGrid.two .card .colordot, #quizGrid.two .card .numbox { aspect-ratio: 16/9; }
+
+  /* ===== ごほうび画面 ===== */
+  #reward { position: fixed; inset: 0; background: rgba(255,224,130,0.97); z-index: 30; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
+  #reward.show { display: flex; }
+  #reward .sticker { font-size: 120px; animation: pop .8s; }
+  #reward h2 { font-size: 34px; margin: 8px 0; }
+
+  /* シールちょう */
+  .stickers { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; padding: 10px; }
+  .stickers span { font-size: 50px; background: #fff; border-radius: 16px; padding: 8px; box-shadow: var(--shadow); }
+  .stickers .empty { font-size: 16px; color: #795548; background: none; box-shadow: none; }
+
+  /* ===== 紙ふぶき ===== */
+  .confetti { position: fixed; top: -20px; width: 12px; height: 12px; border-radius: 3px; z-index: 40; pointer-events: none; animation: fall 1.6s linear forwards; }
+  @keyframes fall { to { transform: translateY(110vh) rotate(720deg); opacity: .6; } }
+
+  /* ===== おとな用の設定 ===== */
+  #gate, #settings { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 50; display: none; align-items: center; justify-content: center; padding: 16px; }
+  #gate.show, #settings.show { display: flex; }
+  .panel { background: #fff; border-radius: 20px; padding: 18px; width: 100%; max-width: 420px; max-height: 90vh; overflow-y: auto; user-select: text; }
+  .panel h2 { margin: 0 0 10px; font-size: 20px; }
+  .panel label { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 0; border-bottom: 1px solid #eee; font-size: 15px; }
+  .panel select, .panel input[type=range] { max-width: 55%; font-size: 14px; }
+  .panel input[type=checkbox] { width: 24px; height: 24px; }
+  .note { font-size: 13px; color: #795548; background: #fff8e1; border-radius: 10px; padding: 10px; margin: 10px 0; line-height: 1.5; }
+  .note.warn { background: #ffebee; color: #c62828; }
+  .gatebtns { display: flex; gap: 10px; justify-content: center; margin-top: 10px; }
+  .gatebtns button { flex: 1; font-size: 26px; padding: 14px; border: none; border-radius: 14px; background: #eee; }
+  .ver { font-size: 12px; color: #999; text-align: right; margin-top: 8px; }
+  #voiceWarn { display: none; }
+</style>
+</head>
+<body>
+
+<!-- ======================= ホーム画面 ======================= -->
+<section id="home" class="screen active">
+  <header>
+    <button class="iconbtn" id="btnStickers" title="シールちょう">⭐</button>
+    <h1>はたらくクルマ えいご</h1>
+    <button class="iconbtn small" id="btnSettings" title="おとなのひと">⚙️</button>
+  </header>
+  <div id="truckMeter">
+    <span class="bag">🗑️</span><span class="bag">🗑️</span><span class="bag">🗑️</span><span class="bag">🗑️</span><span class="bag">🗑️</span>
+    <span id="truckIcon">🚛</span>
+  </div>
+  <main>
+    <div class="note warn" id="voiceWarn">⚠️ 英語の声がこのスマホに入っていないようです。おとなのひとは ⚙️ を見てください。</div>
+    <div class="hero" id="hero">
+      <img src="img/garbage.svg" alt="">
+      <div class="label">Garbage truck! <div class="hint">🔊 タッチしてね</div></div>
+    </div>
+    <div class="catgrid" id="catgrid"></div>
+  </main>
+</section>
+
+<!-- ======================= カテゴリ画面（きく） ======================= -->
+<section id="cat" class="screen">
+  <header>
+    <button class="iconbtn" id="btnBack1">🏠</button>
+    <h1 id="catTitle"></h1>
+    <button class="iconbtn" id="btnQuiz" title="クイズ">❓</button>
+  </header>
+  <main><div class="grid" id="wordGrid"></div></main>
+</section>
+
+<!-- ======================= クイズ画面 ======================= -->
+<section id="quiz" class="screen">
+  <header>
+    <button class="iconbtn" id="btnBack2">🏠</button>
+    <h1 id="quizTitle">クイズ</h1>
+    <button class="iconbtn" id="btnRepeat" title="もういちど">🔊</button>
+  </header>
+  <div id="truckMeter2"></div>
+  <main>
+    <div id="quizQ"></div>
+    <div class="grid" id="quizGrid"></div>
+  </main>
+</section>
+
+<!-- ======================= シールちょう ======================= -->
+<section id="book" class="screen">
+  <header>
+    <button class="iconbtn" id="btnBack3">🏠</button>
+    <h1>シールちょう</h1>
+    <span style="width:52px"></span>
+  </header>
+  <main><div class="stickers" id="stickerList"></div></main>
+</section>
+
+<!-- ======================= おとなのえいご ======================= -->
+<section id="adult" class="screen">
+  <header>
+    <button class="iconbtn" id="btnBack4">🏠</button>
+    <h1>おとなの声かけ</h1>
+    <button class="iconbtn" id="btnAdultQuiz" title="クイズ">❓</button>
+  </header>
+  <main>
+    <div class="note">子どもに毎日言ってみる英語です。行をタッチすると聞けます。まねして言ってみましょう。</div>
+    <div id="phraseList"></div>
+  </main>
+</section>
+
+<!-- ======================= おとなクイズ ======================= -->
+<section id="adultQuiz" class="screen">
+  <header>
+    <button class="iconbtn" id="btnBack5">🏠</button>
+    <h1 id="adultQuizTitle">おとなクイズ</h1>
+    <span style="width:52px"></span>
+  </header>
+  <main>
+    <div id="adultQ"></div>
+    <div id="adultChoices"></div>
+    <div id="adultScore" class="note" style="text-align:center"></div>
+  </main>
+</section>
+
+<!-- 大きく見せる -->
+<div id="detail">
+  <div class="big" id="detailPic"></div>
+  <div class="word" id="detailEn"></div>
+  <div class="yomi" id="detailYomi"></div>
+  <div class="jp" id="detailJp"></div>
+  <div class="sentence" id="detailSent"></div>
+  <div>
+    <button class="bigbtn" id="btnSay">🔊 もういちど</button>
+    <button class="bigbtn gray" id="btnClose">✖ とじる</button>
+  </div>
+</div>
+
+<!-- ごほうび -->
+<div id="reward">
+  <div class="sticker" id="rewardSticker">🚛</div>
+  <h2>Great job!</h2>
+  <p>ゴミぶくろが いっぱい！<br>シールを もらったよ</p>
+  <div>
+    <button class="bigbtn green" id="btnAgain">もういっかい</button>
+    <button class="bigbtn gray" id="btnHome">🏠</button>
+  </div>
+</div>
+
+<!-- おとなチェック（かんたんな計算） -->
+<div id="gate">
+  <div class="panel">
+    <h2>おとなのひとへ</h2>
+    <p>こたえは？ <b id="gateQ"></b></p>
+    <div class="gatebtns" id="gateBtns"></div>
+    <div class="gatebtns"><button id="gateCancel" style="font-size:16px">やめる</button></div>
+  </div>
+</div>
+
+<!-- 設定 -->
+<div id="settings">
+  <div class="panel">
+    <h2>⚙️ 設定（おとな用）</h2>
+    <label>英語の声 <select id="selVoice"></select></label>
+    <label>はやさ <input type="range" id="rngRate" min="0.5" max="1.2" step="0.1"></label>
+    <label>英語のあとに日本語も言う <input type="checkbox" id="chkJp"></label>
+    <label>クイズの選択肢の数 <select id="selChoices"><option value="2">2つ（かんたん）</option><option value="3">3つ</option></select></label>
+    <label>タッチ音・効果音 <input type="checkbox" id="chkSfx"></label>
+    <div style="text-align:center;margin-top:10px">
+      <button class="bigbtn" id="btnTestVoice" style="font-size:16px">🔊 テスト再生</button>
+      <button class="bigbtn gray" id="btnResetStickers" style="font-size:16px">シールをリセット</button>
+    </div>
+    <div class="note">
+      英語の声は、スマホに入っている「読み上げ機能」を使います。声が出ないときは<br>
+      Androidの「設定 → システム → 言語と入力 → テキスト読み上げ」で <b>Google テキスト読み上げ</b> を選び、
+      「音声データをインストール」から <b>英語（米国）</b> を入れてください。ネット不要で動きます。
+    </div>
+    <div style="text-align:center"><button class="bigbtn" id="btnCloseSettings">とじる</button></div>
+    <div class="ver">version 1.0</div>
+  </div>
+</div>
+
+<script>
+// =====================================================================
+//  単語のデータ
+//  en=英語  yomi=読み方(おとな用)  jp=日本語  img=写真  em=絵文字  color=色  n=数
+// =====================================================================
+const CATEGORIES = [
+  { id: "work", name: "はたらくクルマ", em: "🚛", words: [
+    { en: "Garbage truck", yomi: "ガービッジ トラック", jp: "ゴミしゅうしゅうしゃ", img: "img/garbage.svg" },
+    { en: "Fire truck",    yomi: "ファイア トラック",   jp: "しょうぼうしゃ",     img: "img/fire.jpg" },
+    { en: "Police car",    yomi: "ポリス カー",         jp: "パトカー",           img: "img/police.jpg" },
+    { en: "Ambulance",     yomi: "アンビュランス",      jp: "きゅうきゅうしゃ",   img: "img/ambulance.jpg" },
+    { en: "Dump truck",    yomi: "ダンプ トラック",     jp: "ダンプカー",         img: "img/dump.jpg" },
+    { en: "Excavator",     yomi: "エクスカベーター",    jp: "ショベルカー",       img: "img/excavator.jpg" },
+    { en: "Crane truck",   yomi: "クレーン トラック",   jp: "クレーンしゃ",       img: "img/crane.jpg" },
+    { en: "Tank truck",    yomi: "タンク トラック",     jp: "タンクローリー",     img: "img/tanker.jpg" },
+    { en: "Tractor",       yomi: "トラクター",          jp: "トラクター",         img: "img/tractor.jpg" },
+    { en: "Delivery truck",yomi: "デリバリー トラック", jp: "はいたつのトラック", img: "img/panel.jpg" },
+    { en: "Bus",           yomi: "バス",                jp: "バス",               img: "img/bus.jpg" },
+  ]},
+  { id: "ride", name: "のりもの", em: "🚃", words: [
+    { en: "Train",        yomi: "トレイン",        jp: "でんしゃ",       img: "img/train.jpg" },
+    { en: "Bullet train", yomi: "ブレット トレイン", jp: "しんかんせん", img: "img/shinkansen.jpg" },
+    { en: "Airplane",     yomi: "エアプレイン",    jp: "ひこうき",       img: "img/airplane.jpg" },
+    { en: "Ship",         yomi: "シップ",          jp: "ふね",           img: "img/ship.jpg" },
+    { en: "Sailboat",     yomi: "セイルボート",    jp: "ヨット",         img: "img/sailboat.jpg" },
+    { en: "Rocket",       yomi: "ロケット",        jp: "ロケット",       img: "img/rocket.jpg" },
+    { en: "Motorcycle",   yomi: "モーターサイクル", jp: "バイク",        img: "img/motorcycle.jpg" },
+    { en: "Car",          yomi: "カー",            jp: "くるま",         em: "🚗" },
+    { en: "Bicycle",      yomi: "バイシクル",      jp: "じてんしゃ",     em: "🚲" },
+    { en: "Helicopter",   yomi: "ヘリコプター",    jp: "ヘリコプター",   em: "🚁" },
+  ]},
+  { id: "animal", name: "どうぶつ", em: "🐶", words: [
+    { en: "Dog", yomi: "ドッグ", jp: "いぬ", em: "🐶" },
+    { en: "Cat", yomi: "キャット", jp: "ねこ", em: "🐱" },
+    { en: "Rabbit", yomi: "ラビット", jp: "うさぎ", em: "🐰" },
+    { en: "Elephant", yomi: "エレファント", jp: "ぞう", em: "🐘" },
+    { en: "Lion", yomi: "ライオン", jp: "ライオン", em: "🦁" },
+    { en: "Monkey", yomi: "モンキー", jp: "さる", em: "🐵" },
+    { en: "Bear", yomi: "ベア", jp: "くま", em: "🐻" },
+    { en: "Fish", yomi: "フィッシュ", jp: "さかな", em: "🐟" },
+    { en: "Bird", yomi: "バード", jp: "とり", em: "🐦" },
+    { en: "Frog", yomi: "フロッグ", jp: "かえる", em: "🐸" },
+    { en: "Pig", yomi: "ピッグ", jp: "ぶた", em: "🐷" },
+    { en: "Cow", yomi: "カウ", jp: "うし", em: "🐮" },
+  ]},
+  { id: "color", name: "いろ", em: "🎨", words: [
+    { en: "Red", yomi: "レッド", jp: "あか", color: "#e53935" },
+    { en: "Blue", yomi: "ブルー", jp: "あお", color: "#1e88e5" },
+    { en: "Yellow", yomi: "イエロー", jp: "きいろ", color: "#fdd835" },
+    { en: "Green", yomi: "グリーン", jp: "みどり", color: "#43a047" },
+    { en: "Orange", yomi: "オレンジ", jp: "オレンジ", color: "#fb8c00" },
+    { en: "Purple", yomi: "パープル", jp: "むらさき", color: "#8e24aa" },
+    { en: "Pink", yomi: "ピンク", jp: "ピンク", color: "#f48fb1" },
+    { en: "Brown", yomi: "ブラウン", jp: "ちゃいろ", color: "#6d4c41" },
+    { en: "Black", yomi: "ブラック", jp: "くろ", color: "#212121" },
+    { en: "White", yomi: "ホワイト", jp: "しろ", color: "#ffffff" },
+  ]},
+  { id: "number", name: "かず", em: "🔢", words: [
+    { en: "One", yomi: "ワン", jp: "いち", n: 1 }, { en: "Two", yomi: "トゥー", jp: "に", n: 2 },
+    { en: "Three", yomi: "スリー", jp: "さん", n: 3 }, { en: "Four", yomi: "フォー", jp: "よん", n: 4 },
+    { en: "Five", yomi: "ファイブ", jp: "ご", n: 5 }, { en: "Six", yomi: "シックス", jp: "ろく", n: 6 },
+    { en: "Seven", yomi: "セブン", jp: "なな", n: 7 }, { en: "Eight", yomi: "エイト", jp: "はち", n: 8 },
+    { en: "Nine", yomi: "ナイン", jp: "きゅう", n: 9 }, { en: "Ten", yomi: "テン", jp: "じゅう", n: 10 },
+  ]},
+  { id: "fruit", name: "くだもの", em: "🍎", words: [
+    { en: "Apple", yomi: "アップル", jp: "りんご", em: "🍎" },
+    { en: "Banana", yomi: "バナナ", jp: "バナナ", em: "🍌" },
+    { en: "Grapes", yomi: "グレープス", jp: "ぶどう", em: "🍇" },
+    { en: "Strawberry", yomi: "ストロベリー", jp: "いちご", em: "🍓" },
+    { en: "Orange", yomi: "オレンジ", jp: "みかん", em: "🍊" },
+    { en: "Watermelon", yomi: "ウォーターメロン", jp: "すいか", em: "🍉" },
+    { en: "Peach", yomi: "ピーチ", jp: "もも", em: "🍑" },
+    { en: "Cherry", yomi: "チェリー", jp: "さくらんぼ", em: "🍒" },
+    { en: "Lemon", yomi: "レモン", jp: "レモン", em: "🍋" },
+    { en: "Melon", yomi: "メロン", jp: "メロン", em: "🍈" },
+  ]},
+  { id: "greet", name: "あいさつ", em: "👋", words: [
+    { en: "Hello", yomi: "ハロー", jp: "こんにちは", em: "👋" },
+    { en: "Thank you", yomi: "サンキュー", jp: "ありがとう", em: "🙏" },
+    { en: "Good morning", yomi: "グッド モーニング", jp: "おはよう", em: "🌞" },
+    { en: "Good night", yomi: "グッド ナイト", jp: "おやすみ", em: "🌙" },
+    { en: "Bye-bye", yomi: "バイバイ", jp: "ばいばい", em: "🙋" },
+    { en: "Yes", yomi: "イエス", jp: "うん", em: "👍" },
+    { en: "No", yomi: "ノー", jp: "いや", em: "👎" },
+    { en: "Yummy", yomi: "ヤミー", jp: "おいしい", em: "😋" },
+    { en: "I love you", yomi: "アイ ラブ ユー", jp: "だいすき", em: "❤️" },
+    { en: "Sorry", yomi: "ソーリー", jp: "ごめんね", em: "🙇" },
+  ]},
+];
+
+// おとなが子どもに言ってみる例文（単語ごと）。無いものはカテゴリごとの型で作る
+const SENTENCES = {
+  "Garbage truck": "Look! The garbage truck is coming!",
+  "Fire truck": "The fire truck is so loud!",
+  "Police car": "A police car! Let's wave.",
+  "Ambulance": "The ambulance is in a hurry.",
+  "Dump truck": "The dump truck carries dirt.",
+  "Excavator": "The excavator is digging a hole.",
+  "Crane truck": "The crane truck lifts heavy things.",
+  "Tank truck": "The tank truck carries gas.",
+  "Tractor": "The tractor works on the farm.",
+  "Delivery truck": "The delivery truck brings packages.",
+  "Bus": "Let's ride the bus!",
+  "Train": "Here comes the train!",
+  "Bullet train": "The bullet train is very fast.",
+  "Airplane": "Look up! An airplane!",
+  "Ship": "The ship is on the sea.",
+  "Sailboat": "The sailboat has a big sail.",
+  "Rocket": "Three, two, one, blast off!",
+  "Motorcycle": "The motorcycle goes vroom!",
+  "Car": "Let's get in the car.",
+  "Bicycle": "Let's ride a bicycle.",
+  "Helicopter": "The helicopter goes round and round.",
+};
+const SENTENCE_TEMPLATE = {
+  animal: (w) => `I see a ${w.en.toLowerCase()}!`,
+  color:  (w) => `It's ${w.en.toLowerCase()}. What color is this?`,
+  number: (w) => `Let's count! ${w.en}!`,
+  fruit:  (w) => `Do you want ${w.en === "Grapes" ? "some grapes" : (/^[AEIOU]/.test(w.en) ? "an " : "a ") + w.en.toLowerCase()}?`,
+  greet:  (w) => `Can you say "${w.en}"?`,
+};
+function sentenceOf(cat, w) {
+  return SENTENCES[w.en] || (SENTENCE_TEMPLATE[cat.id] ? SENTENCE_TEMPLATE[cat.id](w) : w.en);
+}
+
+// おとなの声かけフレーズ（毎日の暮らしで子どもに言う英語）
+const PHRASES = [
+  { g: "あさ・ごはん", en: "Good morning! Did you sleep well?", jp: "おはよう！よく眠れた？" },
+  { g: "あさ・ごはん", en: "Time to eat.", jp: "ごはんの時間だよ" },
+  { g: "あさ・ごはん", en: "Is it yummy?", jp: "おいしい？" },
+  { g: "あさ・ごはん", en: "Drink your water.", jp: "お水を飲んでね" },
+  { g: "あさ・ごはん", en: "All done? Good job!", jp: "全部食べた？えらいね！" },
+  { g: "おでかけ", en: "Let's go!", jp: "さあ行こう！" },
+  { g: "おでかけ", en: "Put on your shoes.", jp: "くつをはいてね" },
+  { g: "おでかけ", en: "Hold my hand.", jp: "手をつないで" },
+  { g: "おでかけ", en: "Look! A garbage truck!", jp: "見て！ゴミ収集車だ！" },
+  { g: "おでかけ", en: "What is that?", jp: "あれは何かな？" },
+  { g: "おでかけ", en: "Be careful.", jp: "気をつけてね" },
+  { g: "おでかけ", en: "Stop! Wait for me.", jp: "止まって！待ってね" },
+  { g: "あそび", en: "Let's play!", jp: "遊ぼう！" },
+  { g: "あそび", en: "Which one do you like?", jp: "どれが好き？" },
+  { g: "あそび", en: "Your turn.", jp: "あなたの番だよ" },
+  { g: "あそび", en: "Let's clean up.", jp: "お片づけしよう" },
+  { g: "あそび", en: "Vroom vroom! Here comes the truck!", jp: "ブーン！トラックが来たよ！" },
+  { g: "ほめる", en: "Good job!", jp: "よくできたね！" },
+  { g: "ほめる", en: "You did it!", jp: "できたね！" },
+  { g: "ほめる", en: "I'm proud of you.", jp: "えらいね（誇らしいよ）" },
+  { g: "ほめる", en: "I love you.", jp: "だいすきだよ" },
+  { g: "おふろ・ねる", en: "Bath time!", jp: "おふろの時間だよ" },
+  { g: "おふろ・ねる", en: "Let's brush your teeth.", jp: "はみがきしよう" },
+  { g: "おふろ・ねる", en: "Time for bed.", jp: "寝る時間だよ" },
+  { g: "おふろ・ねる", en: "Good night. Sweet dreams.", jp: "おやすみ。いい夢を" },
+];
+
+// ごほうびシールの候補（集まると1枚もらえる）
+const STICKER_POOL = ["🚛","🚒","🚓","🚑","🚜","🚚","🏗️","🚂","🚀","✈️","🚢","⭐","🌈","🎉","🏆","🦁","🐘","🍎","🍉","🌟"];
+
+// =====================================================================
+//  設定（スマホの中に保存）
+// =====================================================================
+const store = {
+  get(key, def) { try { const v = localStorage.getItem("eigo_" + key); return v === null ? def : JSON.parse(v); } catch { return def; } },
+  set(key, val) { try { localStorage.setItem("eigo_" + key, JSON.stringify(val)); } catch {} },
+};
+let settings = {
+  voice: store.get("voice", ""),
+  rate: store.get("rate", 0.8),
+  sayJp: store.get("sayJp", true),
+  choices: store.get("choices", 3),
+  sfx: store.get("sfx", true),
+};
+let bags = store.get("bags", 0);              // 集めたゴミ袋の数（0〜5）
+let stickers = store.get("stickers", []);     // もらったシール
+
+// =====================================================================
+//  英語の読み上げ（スマホの読み上げ機能を使う）
+// =====================================================================
+let voices = [];
+let enVoice = null;
+let currentUtter = null; // 読み上げ中の声を保持（消えるのを防ぐおまじない）
+
+function loadVoices() {
+  if (!("speechSynthesis" in window)) return;
+  voices = speechSynthesis.getVoices();
+  if (!voices.length) return;
+  const en = voices.filter(v => v.lang && v.lang.toLowerCase().startsWith("en"));
+  // 保存してある声 → Google US English → en-US → 英語なら何でも の順で探す
+  enVoice = en.find(v => v.name === settings.voice)
+         || en.find(v => /google.*us/i.test(v.name))
+         || en.find(v => /en[-_]US/i.test(v.lang))
+         || en[0] || null;
+  document.getElementById("voiceWarn").style.display = (!en.length) ? "block" : "none";
+  fillVoiceSelect(en);
+}
+if ("speechSynthesis" in window) {
+  speechSynthesis.onvoiceschanged = loadVoices;
+  loadVoices();
+}
+
+function speak(text, lang) {
+  if (!("speechSynthesis" in window)) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = lang || "en-US";
+  u.rate = settings.rate;
+  u.pitch = 1.1;
+  if (u.lang === "en-US" && enVoice) u.voice = enVoice;
+  currentUtter = u;
+  // cancel直後は鳴らないことがあるので、ほんの少し待ってから話す
+  setTimeout(() => speechSynthesis.speak(u), 60);
+}
+// 単語を言う（設定によって日本語も続けて言う）
+function sayWord(w) {
+  speak(w.en, "en-US");
+  if (settings.sayJp) {
+    const jpUtter = new SpeechSynthesisUtterance(w.jp);
+    jpUtter.lang = "ja-JP"; jpUtter.rate = 1.0;
+    setTimeout(() => speechSynthesis.speak(jpUtter), 120); // 英語の後ろに並べる
+  }
+}
+
+// =====================================================================
+//  効果音（ファイル不要・その場で音を作る）
+// =====================================================================
+let audioCtx = null;
+function beep(freq, dur, type = "sine", when = 0, vol = 0.2) {
+  if (!settings.sfx) return;
+  try {
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.type = type; o.frequency.value = freq;
+    g.gain.setValueAtTime(vol, audioCtx.currentTime + when);
+    g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + when + dur);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(audioCtx.currentTime + when); o.stop(audioCtx.currentTime + when + dur);
+  } catch {}
+}
+const sfx = {
+  tap:     () => beep(660, 0.08),
+  correct: () => { beep(523, 0.15, "sine", 0); beep(659, 0.15, "sine", 0.12); beep(784, 0.3, "sine", 0.24); },
+  wrong:   () => beep(200, 0.3, "triangle"),
+  vroom:   () => { for (let i = 0; i < 8; i++) beep(80 + i * 25, 0.25, "sawtooth", i * 0.12, 0.12); },
+};
+
+// =====================================================================
+//  画面の部品を作る
+// =====================================================================
+const $ = (id) => document.getElementById(id);
+
+// 単語1つ分の「絵」の部分（写真 / 絵文字 / 色 / 数）
+function picHtml(w) {
+  if (w.img)   return `<img class="pic" src="${w.img}" alt="">`;
+  if (w.color) return `<div class="colordot"><span style="background:${w.color}"></span></div>`;
+  if (w.n)     return `<div class="numbox"><b>${w.n}</b><small>${"🚛".repeat(w.n)}</small></div>`;
+  return `<div class="em">${w.em}</div>`;
+}
+function cardHtml(w, showText = true) {
+  return `<div class="card">${picHtml(w)}${showText ? `<div class="en">${w.en}</div><div class="jp">${w.jp}</div>` : ""}</div>`;
+}
+
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  $(id).classList.add("active");
+  window.scrollTo(0, 0);
+}
+
+// ---- ホーム ----
+function renderHome() {
+  $("catgrid").innerHTML = CATEGORIES.map(c =>
+    `<button class="catbtn" data-cat="${c.id}"><span class="em">${c.em}</span>${c.name}</button>`).join("")
+    + `<button class="catbtn adult" id="btnAdult"><span class="em">👨‍👩‍👦</span><span>おとなのえいご<br><small>子どもに話しかけるフレーズ集＋クイズ</small></span></button>`;
+  document.querySelectorAll(".catbtn[data-cat]").forEach(b => b.onclick = () => { sfx.tap(); openCategory(b.dataset.cat); });
+  $("btnAdult").onclick = () => { sfx.tap(); openAdult(); };
+  renderMeter();
+}
+
+// ---- おとなの声かけ ----
+function openAdult() {
+  let html = "", lastG = "";
+  PHRASES.forEach((p, i) => {
+    if (p.g !== lastG) { html += `<div class="phrase-g">${p.g}</div>`; lastG = p.g; }
+    html += `<div class="phrase" data-i="${i}"><div class="t"><div class="en">${p.en}</div><div class="jp">${p.jp}</div></div><span class="sp">🔊</span></div>`;
+  });
+  $("phraseList").innerHTML = html;
+  document.querySelectorAll(".phrase").forEach(el => el.onclick = () => speak(PHRASES[el.dataset.i].en, "en-US"));
+  showScreen("adult");
+}
+
+// ---- おとなクイズ（日本語を見て英語を選ぶ） ----
+let adultScore = { ok: 0, total: 0 }, adultAnswer = null, adultLocked = false;
+function startAdultQuiz() {
+  adultScore = { ok: 0, total: 0 };
+  showScreen("adultQuiz");
+  nextAdultQuestion();
+}
+function nextAdultQuestion() {
+  adultLocked = false;
+  const picks = shuffle(PHRASES).slice(0, 3);
+  adultAnswer = picks[Math.floor(Math.random() * 3)];
+  $("adultQ").innerHTML = `「${adultAnswer.jp}」<small>英語で言うと？</small>`;
+  $("adultChoices").innerHTML = picks.map((p, i) => `<button class="choice" data-i="${i}">${p.en}</button>`).join("");
+  document.querySelectorAll(".choice").forEach(el => el.onclick = () => {
+    if (adultLocked) return;
+    const p = picks[el.dataset.i];
+    if (p === adultAnswer) {
+      adultLocked = true; adultScore.ok++; adultScore.total++;
+      el.classList.add("good"); sfx.correct(); speak(p.en, "en-US");
+      setTimeout(nextAdultQuestion, 2200);
+    } else {
+      adultScore.total++;
+      el.classList.add("bad"); sfx.wrong();
+    }
+    $("adultScore").textContent = `正解 ${adultScore.ok} / ${adultScore.total} 回`;
+  });
+  $("adultScore").textContent = adultScore.total ? `正解 ${adultScore.ok} / ${adultScore.total} 回` : "日本語に合う英語を選んでください。正解すると英語が流れます。";
+}
+$("btnAdultQuiz").onclick = () => { sfx.tap(); startAdultQuiz(); };
+function renderMeter() {
+  document.querySelectorAll("#truckMeter .bag").forEach((el, i) => el.classList.toggle("on", i < bags));
+}
+
+// ---- カテゴリ（きく） ----
+let currentCat = null;
+function openCategory(id) {
+  currentCat = CATEGORIES.find(c => c.id === id);
+  $("catTitle").textContent = currentCat.name;
+  $("wordGrid").innerHTML = currentCat.words.map(w => cardHtml(w)).join("");
+  document.querySelectorAll("#wordGrid .card").forEach((el, i) => el.onclick = () => { sfx.tap(); openDetail(currentCat.words[i]); });
+  showScreen("cat");
+}
+
+// ---- 大きく見せる ----
+let detailWord = null;
+function openDetail(w) {
+  detailWord = w;
+  $("detailPic").innerHTML = picHtml(w);
+  $("detailEn").textContent = w.en;
+  $("detailYomi").textContent = w.yomi;
+  $("detailJp").textContent = w.jp;
+  const s = sentenceOf(currentCat || CATEGORIES[0], w);
+  $("detailSent").innerHTML = `おとなが言ってみよう 🔊<b></b>`;
+  $("detailSent").querySelector("b").textContent = s;
+  $("detailSent").onclick = (e) => { e.stopPropagation(); speak(s, "en-US"); };
+  $("detail").classList.add("show");
+  sayWord(w);
+}
+$("detailPic").onclick = () => detailWord && sayWord(detailWord);
+$("btnSay").onclick = () => detailWord && sayWord(detailWord);
+$("btnClose").onclick = () => { $("detail").classList.remove("show"); speechSynthesis.cancel(); };
+
+// ---- クイズ ----
+let quizWord = null, quizLocked = false;
+function startQuiz() {
+  $("quizTitle").textContent = currentCat.name + " クイズ";
+  showScreen("quiz");
+  nextQuestion();
+}
+function shuffle(arr) { return arr.slice().sort(() => Math.random() - 0.5); }
+function nextQuestion() {
+  quizLocked = false;
+  const n = Math.min(settings.choices, currentCat.words.length);
+  const picks = shuffle(currentCat.words).slice(0, n);
+  quizWord = picks[Math.floor(Math.random() * n)];
+  $("quizQ").innerHTML = `Where is the <span style="color:var(--main)">${quizWord.en.toLowerCase()}</span>?<small>「${quizWord.jp}」は どれかな？</small>`;
+  const grid = $("quizGrid");
+  grid.className = "grid" + (n === 2 ? " two" : "");
+  grid.innerHTML = picks.map(w => cardHtml(w, false)).join("");
+  document.querySelectorAll("#quizGrid .card").forEach((el, i) => el.onclick = () => answer(el, picks[i]));
+  askQuestion();
+}
+function askQuestion() { speak(`Where is the ${quizWord.en.toLowerCase()}?`, "en-US"); }
+function answer(el, w) {
+  if (quizLocked) return;
+  if (w === quizWord) {
+    quizLocked = true;
+    el.classList.add("good");
+    sfx.correct(); confetti();
+    speak(`${w.en}! Great job!`, "en-US");
+    bags++;
+    if (bags >= 5) { setTimeout(giveReward, 1400); }
+    else { store.set("bags", bags); renderMeter(); setTimeout(nextQuestion, 1800); }
+  } else {
+    el.classList.add("bad");
+    sfx.wrong();
+    speak("Try again!", "en-US");
+  }
+}
+$("btnRepeat").onclick = askQuestion;
+
+// ---- ごほうび ----
+function giveReward() {
+  const s = STICKER_POOL[Math.floor(Math.random() * STICKER_POOL.length)];
+  stickers.push(s); store.set("stickers", stickers);
+  bags = 0; store.set("bags", bags);
+  $("rewardSticker").textContent = s;
+  $("reward").classList.add("show");
+  sfx.vroom(); confetti(60);
+  speak("Yay! You did it! Here is your sticker!", "en-US");
+  // ゴミ収集車が走っていく
+  const t = $("truckIcon"); t.classList.remove("drive"); void t.offsetWidth; t.classList.add("drive");
+  setTimeout(() => { t.classList.remove("drive"); renderMeter(); }, 1800);
+}
+$("btnAgain").onclick = () => { $("reward").classList.remove("show"); nextQuestion(); };
+$("btnHome").onclick  = () => { $("reward").classList.remove("show"); showScreen("home"); };
+
+// ---- シールちょう ----
+function openBook() {
+  $("stickerList").innerHTML = stickers.length
+    ? stickers.map(s => `<span>${s}</span>`).join("")
+    : `<span class="empty">クイズで ゴミぶくろを5つ あつめると シールが もらえるよ</span>`;
+  showScreen("book");
+}
+
+// ---- 紙ふぶき ----
+function confetti(count = 30) {
+  const colors = ["#e53935","#1e88e5","#fdd835","#43a047","#fb8c00","#8e24aa"];
+  for (let i = 0; i < count; i++) {
+    const d = document.createElement("div");
+    d.className = "confetti";
+    d.style.left = Math.random() * 100 + "vw";
+    d.style.background = colors[i % colors.length];
+    d.style.animationDelay = Math.random() * 0.5 + "s";
+    document.body.appendChild(d);
+    setTimeout(() => d.remove(), 2200);
+  }
+}
+
+// =====================================================================
+//  おとな用の設定（かんたんな計算でロック）
+// =====================================================================
+let gateAnswer = 0;
+function openGate() {
+  const a = 2 + Math.floor(Math.random() * 7), b = 2 + Math.floor(Math.random() * 7);
+  gateAnswer = a + b;
+  $("gateQ").textContent = `${a} + ${b} = ?`;
+  const opts = shuffle([gateAnswer, gateAnswer + 1, gateAnswer - 1]);
+  $("gateBtns").innerHTML = opts.map(o => `<button data-v="${o}">${o}</button>`).join("");
+  document.querySelectorAll("#gateBtns button").forEach(b => b.onclick = () => {
+    $("gate").classList.remove("show");
+    if (Number(b.dataset.v) === gateAnswer) openSettings();
+  });
+  $("gate").classList.add("show");
+}
+$("gateCancel").onclick = () => $("gate").classList.remove("show");
+
+function fillVoiceSelect(en) {
+  const sel = $("selVoice");
+  sel.innerHTML = en.length
+    ? en.map(v => `<option value="${v.name}" ${enVoice && v.name === enVoice.name ? "selected" : ""}>${v.name} (${v.lang})</option>`).join("")
+    : `<option value="">（英語の声が見つかりません）</option>`;
+}
+function openSettings() {
+  loadVoices();
+  $("rngRate").value = settings.rate;
+  $("chkJp").checked = settings.sayJp;
+  $("selChoices").value = String(settings.choices);
+  $("chkSfx").checked = settings.sfx;
+  $("settings").classList.add("show");
+}
+$("selVoice").onchange = (e) => { settings.voice = e.target.value; store.set("voice", settings.voice); loadVoices(); };
+$("rngRate").oninput = (e) => { settings.rate = Number(e.target.value); store.set("rate", settings.rate); };
+$("chkJp").onchange = (e) => { settings.sayJp = e.target.checked; store.set("sayJp", settings.sayJp); };
+$("selChoices").onchange = (e) => { settings.choices = Number(e.target.value); store.set("choices", settings.choices); };
+$("chkSfx").onchange = (e) => { settings.sfx = e.target.checked; store.set("sfx", settings.sfx); };
+$("btnTestVoice").onclick = () => sayWord(CATEGORIES[0].words[0]);
+$("btnResetStickers").onclick = () => { if (confirm("シールとゴミぶくろを全部消しますか？")) { stickers = []; bags = 0; store.set("stickers", []); store.set("bags", 0); renderMeter(); } };
+$("btnCloseSettings").onclick = () => $("settings").classList.remove("show");
+
+// =====================================================================
+//  ボタンのつなぎこみ
+// =====================================================================
+$("hero").onclick = () => { sfx.tap(); openDetail(CATEGORIES[0].words[0]); };
+$("btnSettings").onclick = openGate;
+$("btnStickers").onclick = () => { sfx.tap(); openBook(); };
+$("btnQuiz").onclick = () => { sfx.tap(); startQuiz(); };
+["btnBack1", "btnBack2", "btnBack3", "btnBack4", "btnBack5"].forEach(id => $(id).onclick = () => { sfx.tap(); speechSynthesis.cancel(); showScreen("home"); });
+document.addEventListener("contextmenu", e => e.preventDefault()); // 長押しメニューを出さない
+
+renderHome();
+
+// Service Worker（ネットがなくても開けるようにする）
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+</script>
+</body>
+</html>
