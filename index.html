@@ -43,7 +43,7 @@
     padding: 10px 12px; background: #ffe082;
     box-shadow: 0 2px 0 rgba(0,0,0,0.08);
   }
-  header h1 { font-size: 20px; margin: 0; flex: 1; text-align: center; }
+  header h1 { font-size: clamp(15px, 5vw, 20px); margin: 0; flex: 1; text-align: center; }
   .iconbtn {
     width: 52px; height: 52px; border: none; border-radius: 50%;
     background: var(--card); font-size: 26px; box-shadow: var(--shadow);
@@ -209,9 +209,104 @@
   .gatebtns button { flex: 1; font-size: 26px; padding: 14px; border: none; border-radius: 14px; background: #eee; }
   .ver { font-size: 12px; color: #999; text-align: right; margin-top: 8px; }
   #voiceWarn { display: none; }
+
+  /* =================== レベルアップ（v2.0） =================== */
+  .lvup {
+    width: 100%; border: none; border-radius: 22px; margin-bottom: 14px; padding: 14px 16px;
+    background: linear-gradient(135deg, #ff8f00, #ffb300); color: #fff; box-shadow: var(--shadow);
+    display: flex; align-items: center; gap: 12px; text-align: left; font-size: 22px; font-weight: bold; position: relative;
+  }
+  .lvup .em { font-size: 46px; }
+  .lvup small { display: block; font-size: 13px; font-weight: normal; opacity: .95; }
+  .lvup .new { position: absolute; top: -8px; right: 10px; background: #e53935; color: #fff; font-size: 12px; padding: 3px 8px; border-radius: 10px; }
+  .lvup:active, .modebtn:active { transform: translateY(3px); box-shadow: 0 3px 0 rgba(0,0,0,0.12); }
+  .modebtn {
+    width: 100%; border: none; border-radius: 20px; background: var(--card); box-shadow: var(--shadow);
+    display: flex; align-items: center; gap: 14px; padding: 14px; margin-bottom: 12px;
+    font-size: 20px; font-weight: bold; text-align: left; color: var(--text);
+  }
+  .modebtn .em { font-size: 44px; width: 56px; text-align: center; }
+  .modebtn small { display: block; font-size: 13px; font-weight: normal; color: #795548; }
+  .modebtn .stars { display: block; font-size: 14px; color: var(--main); }
+  .miniMeter { text-align: center; font-size: 20px; padding: 4px; background: #fff8e1; }
+  .miniMeter span { opacity: .25; } .miniMeter span.on { opacity: 1; }
+  .qbox { text-align: center; padding: 10px; font-size: 22px; font-weight: bold; background: #fff; border-radius: 16px; margin-bottom: 12px; box-shadow: var(--shadow); }
+  .qbox small { display: block; font-size: 14px; color: #795548; font-weight: normal; }
+  .grid.two { grid-template-columns: 1fr; }
+  .grid.two .card .pic, .grid.two .card .em { aspect-ratio: 16/9; }
+
+  /* 絵の舞台（SVG） */
+  .stage { background: #fff; border-radius: 22px; overflow: hidden; box-shadow: var(--shadow); }
+  .stage svg { display: block; width: 100%; height: auto; }
+  .caption { text-align: center; margin: 12px 0; min-height: 70px; }
+  .caption .en { font-size: 28px; font-weight: bold; }
+  .caption .jp { font-size: 15px; color: #795548; margin-top: 2px; }
+  .navrow { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .navrow .bigbtn { margin: 0; }
+  .dots { font-size: 12px; color: #d7ccc8; letter-spacing: 3px; } .dots .on { color: var(--main); }
+  .pills { display: flex; gap: 8px; justify-content: center; margin-bottom: 10px; }
+  .pills button { border: none; border-radius: 30px; padding: 10px 18px; font-size: 17px; font-weight: bold; background: #fff; color: var(--text); box-shadow: var(--shadow); }
+  .pills button.on { background: var(--main); color: #fff; }
+
+  /* SVGの動き */
+  [data-part].hit, .bag.bounce { animation: partpop .6s; transform-box: fill-box; transform-origin: center; }
+  @keyframes partpop { 0%{transform:scale(1)} 40%{transform:scale(1.15)} 100%{transform:scale(1)} }
+  .lamp .glow { animation: blink 1s ease-in-out infinite; }
+  @keyframes blink { 50% { opacity: .15; } }
+  .wheel { transform-box: fill-box; transform-origin: center; }
+  @keyframes spin { to { transform: rotate(-360deg); } }
+  @keyframes driveIn  { from { transform: translateX(900px); } to { transform: translateX(0); } }
+  @keyframes driveOut { from { transform: translateX(0); } to { transform: translateX(-950px); } }
+  .drive-in  { animation: driveIn 2.4s ease-out both; }
+  .drive-in .wheel { animation: spin .4s linear 6; }
+  .drive-out { animation: driveOut 2.6s ease-in .6s both; }
+  .drive-out .wheel { animation: spin .4s linear .6s 7; }
+  .munch { animation: munch .3s ease-in-out 6; }
+  @keyframes munch { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+  .bag.in { animation: bagIn .9s ease-in both; transform-box: fill-box; transform-origin: center; }
+  @keyframes bagIn { 0% { transform: translate(0,0) scale(1); } 50% { transform: translate(-30px,-70px) scale(.9); } 100% { transform: translate(-80px,-40px) scale(.1); opacity: 0; } }
+  .pop-in { animation: popIn .5s both; transform-box: fill-box; transform-origin: center; }
+  @keyframes popIn { from { opacity: 0; transform: scale(.3); } to { opacity: 1; transform: scale(1); } }
+  .floaty { animation: floaty 2s ease-in-out infinite; }
+  @keyframes floaty { 50% { transform: translateY(-12px); } }
+
+  /* いろ・かず・おおきさ */
+  .vcard { display: flex; align-items: flex-end; justify-content: center; aspect-ratio: 4/3; background: #fffde7; padding: 10px; }
+  .vcard > div { display: flex; align-items: flex-end; justify-content: center; }
+  .grid.two .vcard { aspect-ratio: 2 / 1; }
+  .grid.two .vcard > div { max-width: 60%; }
+  .vcard svg { width: 100%; height: auto; display: block; }
+  .countBox { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; font-size: 54px; background: #fff; border-radius: 20px; padding: 14px; box-shadow: var(--shadow); margin-bottom: 14px; }
+  .numchoices { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 12px; }
+  .numchoice { border: 4px solid transparent; border-radius: 20px; background: #fff; box-shadow: var(--shadow); padding: 8px; font-size: 48px; font-weight: bold; color: var(--blue); line-height: 1.1; }
+  .numchoice small { display: block; font-size: 15px; color: #795548; }
+  .numchoice.good { border-color: var(--green); animation: pop .5s; }
+  .numchoice.bad { animation: shake .5s; opacity: .45; }
+
+  /* まねっこ */
+  .tabs { display: flex; gap: 8px; justify-content: center; margin-bottom: 10px; }
+  .tabs button { flex: 1; border: none; border-radius: 16px; padding: 10px 4px; font-size: 18px; background: #fff; box-shadow: var(--shadow); color: var(--main); }
+  .tabs button.on { background: var(--main); color: #fff; }
+  .mimicBtns { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 6px 0 12px; }
+  .mimicBtns .bigbtn { margin: 0; font-size: 18px; padding: 12px 16px; }
+  .mimicBtns .bigbtn:disabled { opacity: .35; }
+  .micbtn { width: 92px; height: 92px; border-radius: 50%; border: none; background: #e53935; color: #fff; font-size: 42px; font-weight: bold; box-shadow: var(--shadow); flex: none; }
+  .micbtn.rec { animation: recpulse .8s ease-in-out infinite; }
+  @keyframes recpulse { 50% { transform: scale(1.1); box-shadow: 0 0 0 12px rgba(229,57,53,.25); } }
+  #mmMsg { text-align: center; font-size: 15px; color: #795548; min-height: 22px; margin-bottom: 8px; }
 </style>
 </head>
 <body>
+
+<!-- 絵で使う色のグラデーション（全部の絵で共有。display:noneにすると色が消えるので大きさ0で置く） -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="skyDay" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fd3ff"/><stop offset="1" stop-color="#e6f7ff"/></linearGradient>
+    <linearGradient id="skyDawn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffb74d"/><stop offset="1" stop-color="#fff3e0"/></linearGradient>
+    <linearGradient id="skyNight" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0d1b4c"/><stop offset="1" stop-color="#3949ab"/></linearGradient>
+    <radialGradient id="glow"><stop offset="0" stop-color="#ffb300" stop-opacity=".9"/><stop offset="1" stop-color="#ffb300" stop-opacity="0"/></radialGradient>
+  </defs>
+</svg>
 
 <!-- ======================= ホーム画面 ======================= -->
 <section id="home" class="screen active">
@@ -230,7 +325,9 @@
       <img src="img/garbage.svg" alt="">
       <div class="label">Garbage truck! <div class="hint">🔊 タッチしてね</div></div>
     </div>
+    <button class="lvup" id="btnLv2"><span class="em">🚀</span><span>のりもの レベルアップ<small>えほん・クイズ・まねっこ</small></span><span class="new">NEW</span></button>
     <div class="catgrid" id="catgrid"></div>
+    <div class="ver">v2.0</div>
   </main>
 </section>
 
@@ -251,7 +348,7 @@
     <h1 id="quizTitle">クイズ</h1>
     <button class="iconbtn" id="btnRepeat" title="もういちど">🔊</button>
   </header>
-  <div id="truckMeter2"></div>
+  <div class="miniMeter"></div>
   <main>
     <div id="quizQ"></div>
     <div class="grid" id="quizGrid"></div>
@@ -292,6 +389,111 @@
     <div id="adultQ"></div>
     <div id="adultChoices"></div>
     <div id="adultScore" class="note" style="text-align:center"></div>
+  </main>
+</section>
+
+<!-- ======================= レベルアップ：メニュー ======================= -->
+<section id="lv2" class="screen">
+  <header>
+    <button class="iconbtn" data-go="home">🏠</button>
+    <h1>のりもの レベルアップ</h1>
+    <span style="width:52px"></span>
+  </header>
+  <div class="miniMeter"></div>
+  <main>
+    <button class="modebtn" data-mode="story"><span class="em">📖</span><span>おはなし<small>ゴミしゅうしゅうしゃの いちにち（えほん）</small><span class="stars">★☆☆</span></span></button>
+    <button class="modebtn" data-mode="touch"><span class="em">👆</span><span>さわって えいご<small>タイヤ・まど・ドア・ランプ…</small><span class="stars">★☆☆</span></span></button>
+    <button class="modebtn" data-mode="mix"><span class="em">🎨</span><span>いろ・かず・おおきさ<small>「あかい トラック」「バスは いくつ？」</small><span class="stars">★★☆</span></span></button>
+    <button class="modebtn" data-mode="riddle"><span class="em">🤔</span><span>なぞなぞ クイズ<small>「そらを とぶのは どれ？」</small><span class="stars">★★☆</span></span></button>
+    <button class="modebtn" data-mode="mimic"><span class="em">🎤</span><span>まねっこ<small>きいて、じぶんで いってみよう</small><span class="stars">★★★</span></span></button>
+    <div class="note">おとなのひとへ：単語（レベル1）の次は「2語」「文」です。上から順に難しくなります。まねっこの録音はこのスマホの中で再生するだけで、保存も送信もしません。</div>
+  </main>
+</section>
+
+<!-- ======================= おはなし ======================= -->
+<section id="story" class="screen">
+  <header>
+    <button class="iconbtn" data-go="lv2">⬅</button>
+    <h1>おはなし</h1>
+    <button class="iconbtn" id="storyAuto" title="よみきかせ">▶️</button>
+  </header>
+  <main>
+    <div class="stage" id="storyStage"></div>
+    <div class="caption"><div class="en" id="storyEn"></div><div class="jp" id="storyJp"></div></div>
+    <div class="navrow">
+      <button class="bigbtn gray" id="storyPrev">◀</button>
+      <span class="dots" id="storyDots"></span>
+      <button class="bigbtn" id="storyNext">つぎ ▶</button>
+    </div>
+  </main>
+</section>
+
+<!-- ======================= さわって えいご ======================= -->
+<section id="touch" class="screen">
+  <header>
+    <button class="iconbtn" data-go="lv2">⬅</button>
+    <h1>さわって えいご</h1>
+    <button class="iconbtn" id="touchRepeat" title="もういちど">🔊</button>
+  </header>
+  <div class="miniMeter"></div>
+  <main>
+    <div class="pills"><button data-tm="look">👀 さわってみる</button><button data-tm="quiz">❓ クイズ</button></div>
+    <div class="stage" id="touchStage"></div>
+    <div class="caption"><div class="en" id="touchEn"></div><div class="jp" id="touchJp"></div></div>
+  </main>
+</section>
+
+<!-- ======================= いろ・かず・おおきさ ======================= -->
+<section id="mix" class="screen">
+  <header>
+    <button class="iconbtn" data-go="lv2">⬅</button>
+    <h1>いろ・かず・おおきさ</h1>
+    <button class="iconbtn" id="mixRepeat" title="もういちど">🔊</button>
+  </header>
+  <div class="miniMeter"></div>
+  <main>
+    <div class="qbox" id="mixQ"></div>
+    <div id="mixArea"></div>
+  </main>
+</section>
+
+<!-- ======================= なぞなぞ ======================= -->
+<section id="riddle" class="screen">
+  <header>
+    <button class="iconbtn" data-go="lv2">⬅</button>
+    <h1>なぞなぞ クイズ</h1>
+    <button class="iconbtn" id="riddleRepeat" title="もういちど">🔊</button>
+  </header>
+  <div class="miniMeter"></div>
+  <main>
+    <div class="qbox" id="riddleQ"></div>
+    <div class="grid" id="riddleGrid"></div>
+  </main>
+</section>
+
+<!-- ======================= まねっこ ======================= -->
+<section id="mimic" class="screen">
+  <header>
+    <button class="iconbtn" data-go="lv2">⬅</button>
+    <h1>まねっこ</h1>
+    <span style="width:52px"></span>
+  </header>
+  <div class="miniMeter"></div>
+  <main>
+    <div class="tabs"><button data-lv="0">★ ことば</button><button data-lv="1">★★ ふたつ</button><button data-lv="2">★★★ ぶん</button></div>
+    <div class="stage" id="mmPic"></div>
+    <div class="caption"><div class="en" id="mmEn"></div><div class="jp" id="mmJp"></div></div>
+    <div class="mimicBtns">
+      <button class="bigbtn" id="mmListen">🔊 きく</button>
+      <button class="micbtn" id="mmRec">🎤</button>
+      <button class="bigbtn green" id="mmPlay" disabled>▶ じぶん</button>
+    </div>
+    <div id="mmMsg"></div>
+    <div class="navrow">
+      <button class="bigbtn gray" id="mmPrev">◀</button>
+      <span id="mmCount" style="color:#795548"></span>
+      <button class="bigbtn" id="mmNext">つぎ ▶</button>
+    </div>
   </main>
 </section>
 
@@ -348,7 +550,7 @@
       「音声データをインストール」から <b>英語（米国）</b> を入れてください。ネット不要で動きます。
     </div>
     <div style="text-align:center"><button class="bigbtn" id="btnCloseSettings">とじる</button></div>
-    <div class="ver">version 1.0</div>
+    <div class="ver">version 2.0</div>
   </div>
 </div>
 
@@ -551,8 +753,10 @@ if ("speechSynthesis" in window) {
   loadVoices();
 }
 
+let speakToken = 0; // 新しく話すたびに番号を上げる → 古い「続けて読む」を止める目印
 function speak(text, lang) {
   if (!("speechSynthesis" in window)) return;
+  speakToken++;
   speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
   u.lang = lang || "en-US";
@@ -671,6 +875,20 @@ function nextAdultQuestion() {
 $("btnAdultQuiz").onclick = () => { sfx.tap(); startAdultQuiz(); };
 function renderMeter() {
   document.querySelectorAll("#truckMeter .bag").forEach((el, i) => el.classList.toggle("on", i < bags));
+  const mini = Array.from({ length: 5 }, (_, i) => `<span class="${i < bags ? "on" : ""}">🗑️</span>`).join("") + " 🚛";
+  document.querySelectorAll(".miniMeter").forEach(m => m.innerHTML = mini);
+}
+// 正解したらゴミ袋を1つ。5つたまったらシール。next=次の問題を出す関数
+let rewardNext = null;
+function addBag(next, delay = 1800) {
+  bags++;
+  if (bags >= 5) { rewardNext = next; setTimeout(giveReward, 1400); }
+  else {
+    store.set("bags", bags); renderMeter();
+    // 待っている間に別の画面へ移ったら、次の問題は出さない（裏で声だけ流れるのを防ぐ）
+    const here = document.querySelector(".screen.active").id;
+    if (next) setTimeout(() => { if (document.querySelector(".screen.active").id === here) next(); }, delay);
+  }
 }
 
 // ---- カテゴリ（きく） ----
@@ -730,9 +948,7 @@ function answer(el, w) {
     el.classList.add("good");
     sfx.correct(); confetti();
     speak(`${w.en}! Great job!`, "en-US");
-    bags++;
-    if (bags >= 5) { setTimeout(giveReward, 1400); }
-    else { store.set("bags", bags); renderMeter(); setTimeout(nextQuestion, 1800); }
+    addBag(nextQuestion);
   } else {
     el.classList.add("bad");
     sfx.wrong();
@@ -754,8 +970,8 @@ function giveReward() {
   const t = $("truckIcon"); t.classList.remove("drive"); void t.offsetWidth; t.classList.add("drive");
   setTimeout(() => { t.classList.remove("drive"); renderMeter(); }, 1800);
 }
-$("btnAgain").onclick = () => { $("reward").classList.remove("show"); nextQuestion(); };
-$("btnHome").onclick  = () => { $("reward").classList.remove("show"); showScreen("home"); };
+$("btnAgain").onclick = () => { $("reward").classList.remove("show"); if (rewardNext) rewardNext(); };
+$("btnHome").onclick  = () => { $("reward").classList.remove("show"); stopAll(); showScreen("home"); };
 
 // ---- シールちょう ----
 function openBook() {
@@ -819,6 +1035,517 @@ $("chkSfx").onchange = (e) => { settings.sfx = e.target.checked; store.set("sfx"
 $("btnTestVoice").onclick = () => sayWord(CATEGORIES[0].words[0]);
 $("btnResetStickers").onclick = () => { if (confirm("シールとゴミぶくろを全部消しますか？")) { stickers = []; bags = 0; store.set("stickers", []); store.set("bags", 0); renderMeter(); } };
 $("btnCloseSettings").onclick = () => $("settings").classList.remove("show");
+
+// =====================================================================
+//  レベルアップ（v2.0）共通の道具
+// =====================================================================
+const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+const NUM_EN = ["zero", "one", "two", "three", "four", "five"];
+
+// いくつかの文を順番に読む（英語→日本語など）。終わったら onDone を呼ぶ
+function speakSeq(items, onDone) {
+  if (!("speechSynthesis" in window)) { if (onDone) setTimeout(onDone, 2000); return; }
+  speechSynthesis.cancel();
+  const token = ++speakToken;
+  let i = 0;
+  const next = () => {
+    if (token !== speakToken) return;          // 別の読み上げが始まったら中止
+    if (i >= items.length) { if (onDone) onDone(); return; }
+    const it = items[i++];
+    const u = new SpeechSynthesisUtterance(it.t);
+    u.lang = it.lang || "en-US";
+    u.rate = u.lang === "ja-JP" ? 1.0 : settings.rate;
+    u.pitch = 1.1;
+    if (u.lang === "en-US" && enVoice) u.voice = enVoice;
+    let done = false;
+    const fin = () => { if (done) return; done = true; clearTimeout(timer); setTimeout(next, 250); };
+    const timer = setTimeout(fin, 2500 + it.t.length * 150); // 「読み終わり」の合図が来ないスマホ用の保険
+    u.onend = fin; u.onerror = fin;
+    currentUtter = u;
+    speechSynthesis.speak(u);
+  };
+  setTimeout(next, 60);
+}
+// 英語＋（設定がオンなら）日本語
+function enJp(en, jp) { return settings.sayJp ? [{ t: en }, { t: jp, lang: "ja-JP" }] : [{ t: en }]; }
+
+function stopAll() {
+  speakToken++;
+  if ("speechSynthesis" in window) speechSynthesis.cancel();
+  clearTimeout(stTimer); stAuto = false; updateAutoBtn();
+  stopRecording(true);
+}
+
+// のりもの単語の早見表（"fire truck" → 単語データ）
+const VEH = {};
+CATEGORIES.slice(0, 2).forEach(c => c.words.forEach(w => VEH[w.en.toLowerCase()] = w));
+
+// ---------------------------------------------------------------------
+//  ゴミしゅうしゅうしゃの絵（さわれる部品つき）
+//  data-part="wheel" などの印で「どこをさわったか」が分かる
+// ---------------------------------------------------------------------
+function truckG(opt = {}) {
+  const S = `stroke="#3e2723" stroke-linejoin="round"`;
+  const wheel = (x) => `<g class="wheel"><circle cx="${x}" cy="450" r="48" fill="#333" stroke="#222" stroke-width="6"/><circle cx="${x}" cy="450" r="22" fill="#cfd8dc"/><rect x="${x - 4}" y="428" width="8" height="44" fill="#78909c"/><circle cx="${x}" cy="450" r="7" fill="#546e7a"/></g>`;
+  const lamp = opt.lampOff
+    ? `<rect x="180" y="218" width="40" height="22" rx="6" fill="#9e9e9e" ${S} stroke-width="5"/>`
+    : `<circle class="glow" cx="200" cy="229" r="46" fill="url(#glow)"/><rect x="180" y="218" width="40" height="22" rx="6" fill="#ff6f00" ${S} stroke-width="5"/>`;
+  return `
+  <ellipse cx="420" cy="480" rx="330" ry="18" fill="#000" opacity=".15"/>
+  <g data-part="truck" ${S} stroke-width="6">
+    <path d="M300 200 h330 q60 0 70 60 v170 h-400 z" fill="#f5f2e8"/>
+    <path d="M630 260 q70 0 70 70 v100 h-80 v-170 z" fill="#d7d2c4"/>
+    <rect x="640" y="330" width="45" height="70" rx="8" fill="#5d4037"/>
+    <rect x="300" y="345" width="330" height="26" fill="#ff8f00" stroke="none"/>
+    <path d="M120 300 q0 -60 60 -60 h120 v190 h-180 z" fill="#1e88e5"/>
+    <rect x="110" y="415" width="600" height="28" rx="6" fill="#455a64"/>
+    <rect x="100" y="425" width="40" height="22" rx="6" fill="#78909c" stroke-width="4"/>
+    <rect x="128" y="400" width="24" height="16" rx="4" fill="#ffee58" stroke-width="4"/>
+    <text x="440" y="310" font-size="84" text-anchor="middle" fill="#43a047" stroke="none" font-family="Segoe UI Symbol, Noto Sans Symbols, sans-serif">♻</text>
+  </g>
+  <path data-part="window" d="M150 300 q0 -40 40 -40 h80 v80 h-120 z" fill="#d6f0ff" ${S} stroke-width="6"/>
+  <rect data-part="door" x="146" y="348" width="104" height="60" rx="8" fill="#1565c0" ${S} stroke-width="4"/>
+  <rect x="226" y="372" width="16" height="6" rx="3" fill="#90caf9" pointer-events="none"/>
+  <g data-part="light" class="lamp">${lamp}<circle cx="200" cy="229" r="44" fill="transparent"/></g>
+  <g data-part="wheel">${wheel(200)}${wheel(520)}${wheel(620)}</g>
+  <g data-part="driver">
+    <circle cx="242" cy="302" r="28" fill="transparent"/>
+    <circle cx="242" cy="304" r="22" fill="#ffcc80" ${S} stroke-width="4"/>
+    <path d="M218 296 q24 -26 48 0" fill="#ff8f00" ${S} stroke-width="4"/>
+    <circle cx="235" cy="306" r="3" fill="#333"/><circle cx="249" cy="306" r="3" fill="#333"/>
+    <path d="M233 314 q9 7 18 0" fill="none" stroke="#333" stroke-width="3" stroke-linecap="round"/>
+  </g>`;
+}
+// ゴミぶくろ1つ（x=左下の位置）
+function bagSvg(x, color, i, extra = "") {
+  const y = 470;
+  return `<g class="bag ${extra}" data-part="bag" data-bag="${i}" style="animation-delay:${extra === "in" ? i * 0.5 : 0}s">
+    <path d="M${x} ${y} q-20 -60 20 -80 q40 20 20 80 z" fill="${color}" stroke="#333" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M${x + 12} ${y - 78} l-8 -14 M${x + 28} ${y - 78} l8 -14" stroke="#333" stroke-width="4" fill="none"/></g>`;
+}
+function houseSvg(x, night) {
+  return `<g transform="translate(${x},300)" stroke="#3e2723" stroke-width="4" stroke-linejoin="round">
+    <rect y="50" width="120" height="80" fill="${night ? "#8d6e63" : "#ffccbc"}"/>
+    <path d="M-10 55 L60 0 L130 55 z" fill="${night ? "#6d4c41" : "#e57373"}"/>
+    <rect x="45" y="85" width="30" height="45" fill="#8d6e63"/>
+    <rect x="10" y="68" width="26" height="22" fill="${night ? "#ffee58" : "#bbdefb"}"/>
+    <rect x="84" y="68" width="26" height="22" fill="${night ? "#ffee58" : "#bbdefb"}"/></g>`;
+}
+const cloudSvg = (x, y, s = 1) => `<g fill="#fff" opacity=".95"><ellipse cx="${x}" cy="${y}" rx="${60 * s}" ry="${28 * s}"/><ellipse cx="${x + 45 * s}" cy="${y - 15 * s}" rx="${45 * s}" ry="${30 * s}"/><ellipse cx="${x - 40 * s}" cy="${y - 8 * s}" rx="${40 * s}" ry="${24 * s}"/></g>`;
+const roadSvg = (night) => `<rect y="470" width="800" height="130" fill="${night ? "#616161" : "#9e9e9e"}"/><line x1="0" y1="534" x2="800" y2="534" stroke="#fff" stroke-width="8" stroke-dasharray="40 30"/>`;
+
+// ---------------------------------------------------------------------
+//  ① おはなし「ゴミしゅうしゅうしゃの いちにち」
+// ---------------------------------------------------------------------
+const STORY = [
+  { en: "Good morning, garbage truck!", jp: "おはよう、ゴミしゅうしゅうしゃ！", sc: { dawn: true, houses: [30] } },
+  { en: "Beep, beep! Here I come!", jp: "ピッピー！ いくよ！", sc: { houses: [30], truck: "drive-in", bubble: { t: "Beep beep!", x: 120, y: 230, d: 2.4 } } },
+  { en: "Look! Trash bags. One, two, three!", jp: "みて！ ゴミぶくろ。いち、に、さん！", sc: { houses: [30], bags: true }, tapBags: true },
+  { en: "Pick up, pick up. In they go!", jp: "ひろって、ひろって。ポイッ！", sc: { houses: [30], bags: "in" } },
+  { en: "Munch, munch! Now the truck is full.", jp: "もぐもぐ！ おなか いっぱい。", sc: { houses: [30], truck: "munch", bubble: { t: "Munch!", x: 560, y: 230, d: 0 } } },
+  { en: "Vroom! Off to the clean-up center.", jp: "ブーン！ せいそうこうじょうへ しゅっぱつ！", sc: { houses: [30], truck: "drive-out", bubble: { t: "Vroom!", x: 600, y: 240, d: 0 } } },
+  { en: "The town is clean. Thank you, garbage truck!", jp: "まちが きれいに なったよ。ありがとう！", sc: { houses: [40, 230, 420, 610], truck: "none", flowers: true } },
+  { en: "Good night, garbage truck. See you tomorrow!", jp: "おやすみ。また あしたね！", sc: { night: true, houses: [30], zzz: true } },
+];
+function storySceneSvg(sc) {
+  const sky = sc.night ? "url(#skyNight)" : sc.dawn ? "url(#skyDawn)" : "url(#skyDay)";
+  let s = `<svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg"><rect width="800" height="600" fill="${sky}"/>`;
+  if (sc.night) {
+    s += `<circle cx="660" cy="100" r="46" fill="#fff9c4"/><circle cx="680" cy="88" r="40" fill="#1a2a6c"/>`;
+    [[90, 70], [210, 130], [330, 60], [470, 110], [560, 50], [760, 170], [400, 180]].forEach(([x, y]) => s += `<text x="${x}" y="${y}" font-size="26" fill="#fff59d">★</text>`);
+  } else if (sc.dawn) {
+    s += `<circle cx="640" cy="430" r="80" fill="#ffa726"/>` + cloudSvg(200, 120, .8);
+  } else {
+    s += `<circle cx="690" cy="95" r="48" fill="#ffe082"/>` + cloudSvg(150, 110) + cloudSvg(480, 70, .8);
+  }
+  s += `<rect y="430" width="800" height="50" fill="${sc.night ? "#33691e" : "#8bc34a"}"/>`;
+  (sc.houses || []).forEach(x => s += houseSvg(x, sc.night));
+  if (sc.flowers) {
+    for (let x = 20; x < 800; x += 46) s += `<g><line x1="${x}" y1="470" x2="${x}" y2="448" stroke="#2e7d32" stroke-width="4"/><circle cx="${x}" cy="444" r="9" fill="${["#f06292", "#ffee58", "#ff7043", "#ba68c8"][(x / 46 | 0) % 4]}"/></g>`;
+    [[120, 220], [380, 160], [600, 230], [720, 140]].forEach(([x, y], i) => s += `<text class="floaty" style="animation-delay:${i * .4}s" x="${x}" y="${y}" font-size="48">✨</text>`);
+  }
+  s += roadSvg(sc.night);
+  if (sc.bags) {
+    ["#4dd0e1", "#aed581", "#f48fb1"].forEach((c, i) => s += bagSvg(668 + i * 42, c, i, sc.bags === "in" ? "in" : ""));
+  }
+  if (sc.truck !== "none") {
+    const cls = sc.truck && sc.truck !== "idle" ? sc.truck : "";
+    s += `<g class="${cls}"><g transform="translate(90,100) scale(.8)">${truckG({ lampOff: sc.night })}</g></g>`;
+  }
+  if (sc.bubble) {
+    const b = sc.bubble, w = b.t.length * 22 + 40;
+    s += `<g class="pop-in" style="animation-delay:${b.d}s"><rect x="${b.x}" y="${b.y - 46}" width="${w}" height="60" rx="30" fill="#fff" stroke="#3e2723" stroke-width="4"/><text x="${b.x + w / 2}" y="${b.y - 5}" font-size="34" font-weight="bold" text-anchor="middle" fill="#ff6f00">${b.t}</text></g>`;
+  }
+  if (sc.zzz) s += `<text class="floaty" x="140" y="240" font-size="44" font-weight="bold" fill="#fff">Z z z</text>`;
+  return s + `</svg>`;
+}
+let stPage = 0, stAuto = false, stTimer = null, stCounted = 0;
+function openStory() { stopAll(); stPage = 0; showScreen("story"); renderStory(); }
+function renderStory() {
+  clearTimeout(stTimer);
+  const p = STORY[stPage];
+  $("storyStage").innerHTML = storySceneSvg(p.sc);
+  $("storyEn").textContent = p.en;
+  $("storyJp").textContent = p.jp;
+  $("storyDots").innerHTML = STORY.map((_, i) => `<span class="${i === stPage ? "on" : ""}">●</span>`).join("");
+  $("storyPrev").style.visibility = stPage ? "visible" : "hidden";
+  $("storyNext").textContent = stPage === STORY.length - 1 ? "🔁 もういちど" : "つぎ ▶";
+  stCounted = 0;
+  readStory();
+}
+function readStory() {
+  const p = STORY[stPage];
+  speakSeq(enJp(p.en, p.jp), () => {
+    if (!stAuto) return;
+    if (stPage < STORY.length - 1) stTimer = setTimeout(() => { stPage++; renderStory(); }, 1500);
+    else { stAuto = false; updateAutoBtn(); }
+  });
+}
+function updateAutoBtn() { const b = $("storyAuto"); if (b) b.textContent = stAuto ? "⏸️" : "▶️"; }
+$("storyAuto").onclick = () => { stAuto = !stAuto; updateAutoBtn(); if (stAuto) readStory(); else clearTimeout(stTimer); };
+$("storyNext").onclick = () => { sfx.tap(); stPage = (stPage + 1) % STORY.length; renderStory(); };
+$("storyPrev").onclick = () => { sfx.tap(); if (stPage > 0) { stPage--; renderStory(); } };
+$("storyStage").onclick = (e) => {
+  const bag = e.target.closest(".bag");
+  if (bag && STORY[stPage].tapBags) {       // 3ページ目：ゴミぶくろを数える
+    bag.classList.remove("bounce"); void bag.getBBox(); bag.classList.add("bounce");
+    if (bag.dataset.counted) return;
+    bag.dataset.counted = "1"; stCounted++;
+    sfx.tap();
+    speakSeq(stCounted === 3 ? [{ t: "Three!" }, { t: "Three trash bags!" }] : [{ t: cap(NUM_EN[stCounted]) + "!" }]);
+    return;
+  }
+  readStory();
+};
+
+// ---------------------------------------------------------------------
+//  ② さわって えいご
+// ---------------------------------------------------------------------
+const PARTS = {
+  wheel:  { en: "Wheel",     jp: "タイヤ",           say: "Wheel! Round and round!" },
+  window: { en: "Window",    jp: "まど" },
+  door:   { en: "Door",      jp: "ドア",             say: "Door! Open and close!" },
+  light:  { en: "Light",     jp: "ランプ",           say: "Light! Blink, blink!" },
+  driver: { en: "Driver",    jp: "うんてんしゅさん", say: "Driver! Hello!" },
+  bag:    { en: "Trash bag", jp: "ゴミぶくろ" },
+  sun:    { en: "Sun",       jp: "たいよう" },
+  cloud:  { en: "Cloud",     jp: "くも" },
+  road:   { en: "Road",      jp: "みち" },
+  truck:  { en: "Garbage truck", jp: "ゴミしゅうしゅうしゃ" },
+};
+function touchSceneSvg() {
+  return `<svg viewBox="0 20 800 540" xmlns="http://www.w3.org/2000/svg">
+    <rect width="800" height="600" fill="url(#skyDay)"/>
+    <circle data-part="sun" cx="690" cy="100" r="52" fill="#ffe082"/>
+    <g data-part="cloud">${cloudSvg(150, 110)}${cloudSvg(470, 80, .8)}</g>
+    <rect y="430" width="800" height="50" fill="#8bc34a"/>
+    <g data-part="road">${roadSvg(false)}</g>
+    ${bagSvg(700, "#4dd0e1", 0)}${bagSvg(745, "#aed581", 1)}
+    ${truckG()}
+  </svg>`;
+}
+let touchMode = "look", touchTarget = null, touchLock = false;
+function openTouch() {
+  stopAll();
+  $("touchStage").innerHTML = touchSceneSvg();
+  showScreen("touch");
+  setTouchMode("look");
+}
+function setTouchMode(m) {
+  touchMode = m;
+  document.querySelectorAll("[data-tm]").forEach(b => b.classList.toggle("on", b.dataset.tm === m));
+  if (m === "look") {
+    $("touchEn").textContent = "Touch!";
+    $("touchJp").textContent = "どこでも さわってみてね";
+    speak("Touch the garbage truck!", "en-US");
+  } else nextTouchQ();
+}
+function nextTouchQ() {
+  if (touchMode !== "quiz") return;
+  touchLock = false;
+  const keys = Object.keys(PARTS).filter(k => k !== "truck" && k !== touchTarget);
+  touchTarget = pick(keys);
+  $("touchEn").textContent = `Touch the ${PARTS[touchTarget].en.toLowerCase()}!`;
+  $("touchJp").textContent = `${PARTS[touchTarget].jp}は どこ？`;
+  askTouch();
+}
+function askTouch() {
+  if (touchMode === "quiz" && touchTarget) speak(`Touch the ${PARTS[touchTarget].en.toLowerCase()}!`, "en-US");
+  else speak("Touch the garbage truck!", "en-US");
+}
+$("touchStage").onclick = (e) => {
+  const el = e.target.closest("[data-part]");
+  if (!el) return;
+  const k = el.dataset.part, p = PARTS[k];
+  el.classList.remove("hit"); void el.getBBox(); el.classList.add("hit");
+  if (touchMode === "look") {
+    sfx.tap();
+    $("touchEn").textContent = p.en;
+    $("touchJp").textContent = p.jp;
+    speakSeq(enJp(p.say || p.en + "!", p.jp));
+    return;
+  }
+  if (touchLock) return;
+  if (k === touchTarget) {
+    touchLock = true;
+    sfx.correct(); confetti();
+    $("touchEn").textContent = `Yes! ${p.en}!`;
+    speak(`Yes! ${p.en}!`, "en-US");
+    addBag(nextTouchQ, 2000);
+  } else {
+    sfx.wrong();
+    speak(`That's the ${p.en.toLowerCase()}. Where is the ${PARTS[touchTarget].en.toLowerCase()}?`, "en-US");
+  }
+};
+document.querySelectorAll("[data-tm]").forEach(b => b.onclick = () => { sfx.tap(); setTouchMode(b.dataset.tm); });
+$("touchRepeat").onclick = askTouch;
+
+// ---------------------------------------------------------------------
+//  ③ いろ・かず・おおきさ
+// ---------------------------------------------------------------------
+const COLORS = [
+  { en: "red",    jp: "あかい",     c: "#e53935" },
+  { en: "blue",   jp: "あおい",     c: "#1e88e5" },
+  { en: "yellow", jp: "きいろい",   c: "#fdd835" },
+  { en: "green",  jp: "みどりの",   c: "#43a047" },
+  { en: "orange", jp: "オレンジの", c: "#fb8c00" },
+  { en: "pink",   jp: "ピンクの",   c: "#f06292" },
+];
+const SHAPES = [{ en: "car", jp: "くるま" }, { en: "truck", jp: "トラック" }, { en: "bus", jp: "バス" }];
+const COUNT_ITEMS = [
+  { em: "🚗", one: "car",        many: "cars",        jp: "くるま" },
+  { em: "🚌", one: "bus",        many: "buses",       jp: "バス" },
+  { em: "🚒", one: "fire truck", many: "fire trucks", jp: "しょうぼうしゃ" },
+  { em: "🚓", one: "police car", many: "police cars", jp: "パトカー" },
+  { em: "🚜", one: "tractor",    many: "tractors",    jp: "トラクター" },
+  { em: "🚚", one: "truck",      many: "trucks",      jp: "トラック" },
+  { em: "🚑", one: "ambulance",  many: "ambulances",  jp: "きゅうきゅうしゃ" },
+];
+// 色を変えられる、くるま・トラック・バスの絵
+function vehicleSvg(shape, color) {
+  const S = `stroke="#3e2723" stroke-width="4" stroke-linejoin="round"`;
+  const wheel = (x, y) => `<circle cx="${x}" cy="${y}" r="16" fill="#333" ${S}/><circle cx="${x}" cy="${y}" r="6" fill="#cfd8dc"/>`;
+  let b = "";
+  if (shape === "car") {
+    b = `<path d="M18 98 V80 Q18 66 34 64 L60 38 Q66 32 74 32 H120 Q128 32 134 38 L160 64 Q188 66 188 82 V98 Z" fill="${color}" ${S}/>
+         <path d="M68 62 L84 44 H104 V62 Z" fill="#d6f0ff" ${S}/><path d="M112 44 H126 L144 62 H112 Z" fill="#d6f0ff" ${S}/>` + wheel(60, 100) + wheel(150, 100);
+  } else if (shape === "truck") {
+    b = `<rect x="10" y="96" width="180" height="10" fill="#455a64"/>
+         <rect x="66" y="18" width="122" height="82" rx="6" fill="${color}" ${S}/>
+         <path d="M14 100 V62 Q14 46 30 46 H64 V100 Z" fill="${color}" ${S}/>
+         <path d="M24 70 V62 Q24 54 34 54 H56 V70 Z" fill="#d6f0ff" ${S}/>` + wheel(42, 106) + wheel(150, 106);
+  } else {
+    b = `<rect x="12" y="22" width="176" height="80" rx="16" fill="${color}" ${S}/>` +
+        [26, 64, 102, 140].map(x => `<rect x="${x}" y="34" width="30" height="26" rx="4" fill="#d6f0ff" ${S}/>`).join("") +
+        wheel(50, 104) + wheel(150, 104);
+  }
+  return `<svg viewBox="0 0 200 130" xmlns="http://www.w3.org/2000/svg">${b}</svg>`;
+}
+let mixQ = null, mixLock = false, lastMixType = "";
+function openMix() { stopAll(); showScreen("mix"); nextMix(); }
+function nextMix() {
+  mixLock = false;
+  let t;
+  do { t = pick(["color", "color", "count", "size"]); } while (t === lastMixType && Math.random() < 0.7);
+  lastMixType = t;
+  const area = $("mixArea");
+  if (t === "color") {
+    const shape = pick(SHAPES), cols = shuffle(COLORS).slice(0, settings.choices), ans = pick(cols);
+    mixQ = { say: `Touch the ${ans.en} ${shape.en}!`, yes: `Yes! The ${ans.en} ${shape.en}!` };
+    $("mixQ").innerHTML = `Touch the <span style="color:${ans.en === "yellow" ? "#f9a825" : ans.c}">${ans.en}</span> ${shape.en}!<small>${ans.jp} ${shape.jp}は どれ？</small>`;
+    area.innerHTML = `<div class="grid ${cols.length === 2 ? "two" : ""}">` +
+      cols.map(c => `<div class="card vcard" data-ok="${c === ans}"><div style="width:100%">${vehicleSvg(shape.en, c.c)}</div></div>`).join("") + `</div>`;
+  } else if (t === "size") {
+    const shape = pick(SHAPES), col = pick(COLORS), big = Math.random() < 0.5;
+    const word = big ? "big" : "small";
+    mixQ = { say: `Touch the ${word} ${shape.en}!`, yes: `Yes! The ${word} ${shape.en}!` };
+    $("mixQ").innerHTML = `Touch the <span style="color:var(--main)">${word}</span> ${shape.en}!<small>${big ? "おおきい" : "ちいさい"} ${shape.jp}は どれ？</small>`;
+    const sizes = shuffle([1, 0.45]);
+    area.innerHTML = `<div class="grid two">` +
+      sizes.map(sz => `<div class="card vcard" data-ok="${(sz === 1) === big}"><div style="width:${sz * 70}%">${vehicleSvg(shape.en, col.c)}</div></div>`).join("") + `</div>`;
+  } else {
+    const it = pick(COUNT_ITEMS), n = 1 + Math.floor(Math.random() * 5);
+    const others = shuffle([1, 2, 3, 4, 5].filter(x => x !== n)).slice(0, settings.choices - 1);
+    const nums = [n, ...others].sort((a, b) => a - b);
+    mixQ = { say: `How many ${it.many}?`, yes: `${cap(NUM_EN[n])} ${n === 1 ? it.one : it.many}! Great job!` };
+    $("mixQ").innerHTML = `How many ${it.many}?<small>${it.jp}は いくつ？</small>`;
+    area.innerHTML = `<div class="countBox">${Array(n).fill(`<span>${it.em}</span>`).join("")}</div>` +
+      `<div class="numchoices">${nums.map(x => `<button class="numchoice" data-ok="${x === n}">${x}<small>${NUM_EN[x]}</small></button>`).join("")}</div>`;
+  }
+  area.querySelectorAll("[data-ok]").forEach(el => el.onclick = () => mixAnswer(el));
+  speak(mixQ.say, "en-US");
+}
+function mixAnswer(el) {
+  if (mixLock) return;
+  if (el.dataset.ok === "true") {
+    mixLock = true;
+    el.classList.add("good"); sfx.correct(); confetti();
+    speak(mixQ.yes, "en-US");
+    addBag(nextMix, 2600);
+  } else {
+    el.classList.add("bad"); sfx.wrong();
+    speak("Try again!", "en-US");
+  }
+}
+$("mixRepeat").onclick = () => mixQ && speak(mixQ.say, "en-US");
+
+// ---------------------------------------------------------------------
+//  ④ なぞなぞ クイズ（文を聞いて、のりものを選ぶ）
+//  does=「何をする？」 ans=正解になる乗り物 not=まぎらわしいので選択肢に出さない乗り物
+// ---------------------------------------------------------------------
+const RIDDLES = [
+  { does: "flies in the sky",       jp: "そらを とぶのは どれ？",           ans: ["airplane", "helicopter", "rocket"] },
+  { does: "goes on the water",      jp: "うみを すすむのは どれ？",         ans: ["ship", "sailboat"] },
+  { does: "runs on the tracks",     jp: "せんろを はしるのは どれ？",       ans: ["train", "bullet train"] },
+  { does: "picks up trash",         jp: "ゴミを あつめるのは どれ？",       ans: ["garbage truck"] },
+  { does: "puts out fires",         jp: "火を けすのは どれ？",             ans: ["fire truck"] },
+  { does: "digs holes",             jp: "あなを ほるのは どれ？",           ans: ["excavator"] },
+  { does: "helps sick people",      jp: "びょうきの ひとを たすけるのは どれ？", ans: ["ambulance"] },
+  { does: "catches bad guys",       jp: "わるものを つかまえるのは どれ？", ans: ["police car"] },
+  { does: "lifts heavy things",     jp: "おもいものを もちあげるのは どれ？", ans: ["crane truck"], not: ["excavator"] },
+  { does: "carries dirt",           jp: "つちを はこぶのは どれ？",         ans: ["dump truck"], not: ["excavator", "tractor"] },
+  { does: "brings packages",        jp: "にもつを とどけるのは どれ？",     ans: ["delivery truck"], not: ["dump truck", "tank truck", "airplane", "ship", "train"] },
+  { does: "works on the farm",      jp: "はたけで はたらくのは どれ？",     ans: ["tractor"] },
+  { does: "goes to space",          jp: "うちゅうへ いくのは どれ？",       ans: ["rocket"], not: ["airplane", "helicopter"] },
+  { does: "has two wheels",         jp: "タイヤが ふたつなのは どれ？",     ans: ["motorcycle", "bicycle"] },
+  { does: "is red",                 jp: "あかいのは どれ？",               ans: ["fire truck"], not: ["train", "tractor", "bullet train", "ambulance", "motorcycle", "rocket", "car", "sailboat", "ship", "helicopter", "airplane"] },
+  { does: "carries lots of people", jp: "ひとが たくさん のれるのは どれ？", ans: ["bus", "train", "bullet train", "airplane", "ship"], not: ["sailboat", "rocket", "helicopter", "car"] },
+];
+let rdl = null, rdlAns = null, rdlLock = false, lastRdl = -1;
+function openRiddle() { stopAll(); showScreen("riddle"); nextRiddle(); }
+function nextRiddle() {
+  rdlLock = false;
+  let i;
+  do { i = Math.floor(Math.random() * RIDDLES.length); } while (i === lastRdl);
+  lastRdl = i; rdl = RIDDLES[i];
+  rdlAns = VEH[pick(rdl.ans.filter(k => VEH[k]))];
+  const pool = Object.keys(VEH).filter(k => !rdl.ans.includes(k) && !(rdl.not || []).includes(k));
+  const picks = shuffle([rdlAns, ...shuffle(pool).slice(0, settings.choices - 1).map(k => VEH[k])]);
+  $("riddleQ").innerHTML = `Which one <span style="color:var(--main)">${rdl.does}</span>?<small>${rdl.jp}</small>`;
+  const grid = $("riddleGrid");
+  grid.className = "grid" + (picks.length === 2 ? " two" : "");
+  grid.innerHTML = picks.map(w => cardHtml(w, false)).join("");
+  grid.querySelectorAll(".card").forEach((el, j) => el.onclick = () => riddleAnswer(el, picks[j]));
+  askRiddle();
+}
+function askRiddle() { if (rdl) speak(`Which one ${rdl.does}?`, "en-US"); }
+function riddleAnswer(el, w) {
+  if (rdlLock) return;
+  if (w === rdlAns) {
+    rdlLock = true;
+    el.classList.add("good"); sfx.correct(); confetti();
+    speak(`Yes! The ${w.en.toLowerCase()} ${rdl.does}!`, "en-US");
+    addBag(nextRiddle, 3000);
+  } else {
+    el.classList.add("bad"); sfx.wrong();
+    speak(`That's the ${w.en.toLowerCase()}. Try again!`, "en-US");
+  }
+}
+$("riddleRepeat").onclick = askRiddle;
+
+// ---------------------------------------------------------------------
+//  ⑤ まねっこ（聞く → 3秒録音 → 自分の声を聞く）
+//  録音はこのスマホの中で再生するだけ。保存も送信もしない
+// ---------------------------------------------------------------------
+const MIMIC = [
+  [ { en: "Garbage truck", jp: "ゴミしゅうしゅうしゃ", img: "img/garbage.svg" },
+    { en: "Fire truck",    jp: "しょうぼうしゃ",       img: "img/fire.jpg" },
+    { en: "Police car",    jp: "パトカー",             img: "img/police.jpg" },
+    { en: "Excavator",     jp: "ショベルカー",         img: "img/excavator.jpg" },
+    { en: "Bus",           jp: "バス",                 img: "img/bus.jpg" },
+    { en: "Train",         jp: "でんしゃ",             img: "img/train.jpg" } ],
+  [ { en: "Big truck",     jp: "おおきい トラック",    em: "🚛" },
+    { en: "Red car",       jp: "あかい くるま",        em: "🚗" },
+    { en: "Beep beep!",    jp: "ピッピー！",           em: "🚚💨" },
+    { en: "Two buses",     jp: "バスが ふたつ",        em: "🚌🚌" },
+    { en: "Go, go, go!",   jp: "いけ いけ ゴー！",     em: "🏁" },
+    { en: "Stop!",         jp: "とまれ！",             em: "🛑" } ],
+  [ { en: "Here comes the garbage truck!", jp: "ゴミしゅうしゅうしゃが きたよ！", img: "img/garbage.svg" },
+    { en: "I like trucks!",                jp: "トラックが だいすき！",         em: "🚚❤️" },
+    { en: "The excavator digs.",           jp: "ショベルカーが ほるよ",         img: "img/excavator.jpg" },
+    { en: "The fire truck is red.",        jp: "しょうぼうしゃは あかい",       img: "img/fire.jpg" },
+    { en: "Bye-bye, train!",               jp: "でんしゃ、ばいばい！",          img: "img/train.jpg" },
+    { en: "Thank you, garbage truck!",     jp: "ありがとう、ゴミしゅうしゅうしゃ！", img: "img/garbage.svg" } ],
+];
+let mmLevel = 0, mmIdx = 0, mmRec = null, mmStream = null, mmUrl = null, mmTimer = null;
+function openMimic() { stopAll(); showScreen("mimic"); renderMimic(); }
+function renderMimic() {
+  stopRecording(true);
+  const list = MIMIC[mmLevel], it = list[mmIdx];
+  document.querySelectorAll("[data-lv]").forEach(b => b.classList.toggle("on", Number(b.dataset.lv) === mmLevel));
+  $("mmPic").innerHTML = `<div class="card" style="box-shadow:none;border:none">${picHtml(it)}</div>`;
+  $("mmEn").textContent = it.en;
+  $("mmJp").textContent = it.jp;
+  $("mmCount").textContent = `${mmIdx + 1} / ${list.length}`;
+  if (mmUrl) { URL.revokeObjectURL(mmUrl); mmUrl = null; }
+  $("mmPlay").disabled = true;
+  $("mmMsg").textContent = "🔊 で きいて、🎤 で まねしてみよう";
+  sayMimic();
+}
+function sayMimic() { const it = MIMIC[mmLevel][mmIdx]; speakSeq(enJp(it.en, it.jp)); }
+async function startRecording() {
+  if (mmRec) { stopRecording(); return; }               // 録音中にもう一度押したら止める
+  if (!navigator.mediaDevices || !window.MediaRecorder) { $("mmMsg").textContent = "このブラウザでは録音できません"; return; }
+  speakToken++; if ("speechSynthesis" in window) speechSynthesis.cancel();
+  try {
+    // 音を加工しない設定にすると、スマホが「通話モード」になって音が小さくなるのを防げることが多い
+    mmStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: true } });
+  } catch (e) {
+    $("mmMsg").textContent = "🎤 マイクが使えません。おとなのひと：ブラウザでマイクを「許可」にしてください";
+    return;
+  }
+  const chunks = [];
+  const rec = new MediaRecorder(mmStream);
+  mmRec = rec;
+  rec.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
+  rec.onstop = () => {
+    clearInterval(mmTimer);
+    if (mmStream) { mmStream.getTracks().forEach(t => t.stop()); mmStream = null; }   // マイクをすぐ切る
+    mmRec = null;
+    $("mmRec").classList.remove("rec"); $("mmRec").textContent = "🎤";
+    if (rec._discard || !chunks.length) return;
+    if (mmUrl) URL.revokeObjectURL(mmUrl);
+    mmUrl = URL.createObjectURL(new Blob(chunks, { type: chunks[0].type || "audio/webm" }));
+    $("mmPlay").disabled = false;
+    playMine(true);
+  };
+  rec.start();
+  $("mmRec").classList.add("rec");
+  let left = mmLevel === 2 ? 4 : 3;                        // 文は長いので4秒
+  $("mmRec").textContent = left;
+  $("mmMsg").textContent = "いってみて！";
+  mmTimer = setInterval(() => { left--; if (left > 0) $("mmRec").textContent = left; else stopRecording(); }, 1000);
+}
+function stopRecording(discard = false) {
+  clearInterval(mmTimer);
+  if (mmRec && mmRec.state !== "inactive") { mmRec._discard = discard; mmRec.stop(); }
+}
+function playMine(praise) {
+  if (!mmUrl) return;
+  const a = new Audio(mmUrl);
+  $("mmMsg").textContent = "▶ じぶんの こえ";
+  a.onended = () => {
+    if (!praise) return;
+    sfx.correct(); confetti(20);
+    speak("Great job!", "en-US");
+    $("mmMsg").textContent = "じょうず！ もういちど 🎤 か、つぎ ▶";
+    addBag(null);
+  };
+  a.play().catch(() => { $("mmMsg").textContent = "▶ じぶん を おしてね"; });
+}
+$("mmListen").onclick = () => { sfx.tap(); sayMimic(); };
+$("mmRec").onclick = startRecording;
+$("mmPlay").onclick = () => playMine(false);
+$("mmNext").onclick = () => { sfx.tap(); mmIdx = (mmIdx + 1) % MIMIC[mmLevel].length; renderMimic(); };
+$("mmPrev").onclick = () => { sfx.tap(); mmIdx = (mmIdx - 1 + MIMIC[mmLevel].length) % MIMIC[mmLevel].length; renderMimic(); };
+document.querySelectorAll("[data-lv]").forEach(b => b.onclick = () => { sfx.tap(); mmLevel = Number(b.dataset.lv); mmIdx = 0; renderMimic(); });
+
+// ---- レベルアップのメニュー ----
+const MODES = { story: openStory, touch: openTouch, mix: openMix, riddle: openRiddle, mimic: openMimic };
+document.querySelectorAll("[data-mode]").forEach(b => b.onclick = () => { sfx.tap(); MODES[b.dataset.mode](); });
+$("btnLv2").onclick = () => { sfx.tap(); stopAll(); renderMeter(); showScreen("lv2"); };
+document.querySelectorAll("[data-go]").forEach(b => b.onclick = () => { sfx.tap(); stopAll(); renderMeter(); showScreen(b.dataset.go); });
 
 // =====================================================================
 //  ボタンのつなぎこみ

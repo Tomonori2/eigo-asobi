@@ -1,7 +1,7 @@
 // Service Worker（アプリを裏で支える小さなプログラム）
 // 役割: ファイルを保存しておいて、電波が悪くてもアプリを開けるようにする
 // ※ アプリを直したら CACHE_NAME の番号を上げること。上げないとスマホが古い版を出し続ける
-const CACHE_NAME = "eigo-asobi-v2";
+const CACHE_NAME = "eigo-asobi-v3";
 const IMAGES = ["fire","police","ambulance","dump","excavator","crane","tanker","tractor","panel","bus",
                 "train","shinkansen","airplane","ship","sailboat","rocket","motorcycle"].map(n => `./img/${n}.jpg`);
 const FILES = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png", "./img/garbage.svg", ...IMAGES];
